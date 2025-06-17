@@ -1,0 +1,24 @@
+{
+  "name": "Spring Boot Multi-DB",
+  "image": "mcr.microsoft.com/devcontainers/java:17",
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
+  },
+  "postCreateCommand": "./mvnw clean install",
+  "customizations": {
+    "vscode": {
+      "settings": {},
+      "extensions": [
+        "vscjava.vscode-spring-boot-extension-pack",
+        "pivotal.vscode-spring-boot",
+        "ms-azuretools.vscode-docker"
+      ]
+    }
+  },
+  "forwardPorts": [8080],
+  "portsAttributes": {
+    "8080": {
+      "label": "Spring Boot App"
+    }
+  }
+}
