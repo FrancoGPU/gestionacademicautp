@@ -3,57 +3,51 @@ package pe.edu.utp.gestionacademicautp.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import pe.edu.utp.gestionacademicautp.model.postgres.Estudiante;
-import pe.edu.utp.gestionacademicautp.repository.postgres.EstudianteRepository;
+import pe.edu.utp.gestionacademicautp.dto.EstudianteDTO;
+import pe.edu.utp.gestionacademicautp.service.EstudianteService;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/estudiantes")
 @RequiredArgsConstructor
 public class EstudianteController {
-    private final EstudianteRepository estudianteRepository;
+
+    private final EstudianteService estudianteService;
 
     @GetMapping
-    public List<Estudiante> getAll() {
-        return estudianteRepository.findAll();
+    public List<EstudianteDTO> getAll() {
+        return estudianteService.getAll();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Estudiante> getById(@PathVariable Long id) {
-        Optional<Estudiante> estudiante = estudianteRepository.findById(id);
-        return estudiante.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<EstudianteDTO> getById(@PathVariable Integer id) {
+        EstudianteDTO estudianteDTO = estudianteService.getById(id);
+        if (estudianteDTO != null) {
+            return ResponseEntity.ok(estudianteDTO);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @PostMapping
-    public Estudiante create(@RequestBody Estudiante estudiante) {
-        return estudianteRepository.save(estudiante);
+    public EstudianteDTO create(@RequestBody EstudianteDTO estudianteDTO) {
+        return estudianteService.create(estudianteDTO);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Estudiante> update(@PathVariable Long id, @RequestBody Estudiante estudianteDetails) {
-        Optional<Estudiante> optionalEstudiante = estudianteRepository.findById(id);
-        if (optionalEstudiante.isPresent()) {
-            Estudiante estudiante = optionalEstudiante.get();
-            estudiante.setNombre(estudianteDetails.getNombre());
-            estudiante.setApellido(estudianteDetails.getApellido());
-            estudiante.setCorreo(estudianteDetails.getCorreo());
-            estudiante.setFecha_nacimiento(estudianteDetails.getFecha_nacimiento());
-            return ResponseEntity.ok(estudianteRepository.save(estudiante));
+    public ResponseEntity<EstudianteDTO> update(@PathVariable Integer id, @RequestBody EstudianteDTO estudianteDTO) {
+        EstudianteDTO updatedEstudiante = estudianteService.update(id, estudianteDTO);
+        if (updatedEstudiante != null) {
+            return ResponseEntity.ok(updatedEstudiante);
         } else {
             return ResponseEntity.notFound().build();
         }
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        Optional<Estudiante> optionalEstudiante = estudianteRepository.findById(id);
-        if (optionalEstudiante.isPresent()) {
-            estudianteRepository.delete(optionalEstudiante.get());
-            return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<Void> delete(@PathVariable Integer id) {
+        estudianteService.delete(id);
+        return ResponseEntity.noContent().build();
     }
 }

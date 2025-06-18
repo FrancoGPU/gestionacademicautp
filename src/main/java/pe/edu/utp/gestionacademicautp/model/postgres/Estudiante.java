@@ -2,6 +2,7 @@ package pe.edu.utp.gestionacademicautp.model.postgres;
 
 import jakarta.persistence.*;
 import java.time.LocalDate;
+
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
@@ -14,7 +15,7 @@ import lombok.AllArgsConstructor;
 public class Estudiante {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     private String nombre;
     private String apellido;

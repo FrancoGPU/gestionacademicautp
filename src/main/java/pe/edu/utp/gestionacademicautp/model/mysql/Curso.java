@@ -9,7 +9,7 @@ import lombok.Data;
 public class Curso {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
     private String nombre;
     private String codigo;
     private int creditos;

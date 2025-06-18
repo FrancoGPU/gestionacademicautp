@@ -3,44 +3,43 @@ package pe.edu.utp.gestionacademicautp.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import pe.edu.utp.gestionacademicautp.model.mongo.ProyectoInvestigacion;
-import pe.edu.utp.gestionacademicautp.repository.mongo.ProyectoInvestigacionRepository;
+import pe.edu.utp.gestionacademicautp.dto.ProyectoInvestigacionDTO;
+import pe.edu.utp.gestionacademicautp.service.ProyectoInvestigacionService;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/proyectos")
 @RequiredArgsConstructor
 public class ProyectoInvestigacionController {
-    private final ProyectoInvestigacionRepository proyectoInvestigacionRepository;
+
+    private final ProyectoInvestigacionService proyectoInvestigacionService;
 
     @GetMapping
-    public List<ProyectoInvestigacion> getAll() {
-        return proyectoInvestigacionRepository.findAll();
+    public List<ProyectoInvestigacionDTO> getAll() {
+        return proyectoInvestigacionService.getAllProyectos();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ProyectoInvestigacion> getById(@PathVariable String id) {
-        Optional<ProyectoInvestigacion> proyecto = proyectoInvestigacionRepository.findById(id);
-        return proyecto.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<ProyectoInvestigacionDTO> getById(@PathVariable String id) {
+        ProyectoInvestigacionDTO proyectoDTO = proyectoInvestigacionService.getProyectoById(id);
+        if (proyectoDTO != null) {
+            return ResponseEntity.ok(proyectoDTO);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @PostMapping
-    public ProyectoInvestigacion create(@RequestBody ProyectoInvestigacion proyecto) {
-        return proyectoInvestigacionRepository.save(proyecto);
+    public ProyectoInvestigacionDTO create(@RequestBody ProyectoInvestigacionDTO proyectoDTO) {
+        return proyectoInvestigacionService.createProyecto(proyectoDTO);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ProyectoInvestigacion> update(@PathVariable String id, @RequestBody ProyectoInvestigacion proyectoDetails) {
-        Optional<ProyectoInvestigacion> optionalProyecto = proyectoInvestigacionRepository.findById(id);
-        if (optionalProyecto.isPresent()) {
-            ProyectoInvestigacion proyecto = optionalProyecto.get();
-            proyecto.setTitulo(proyectoDetails.getTitulo());
-            proyecto.setDescripcion(proyectoDetails.getDescripcion());
-            proyecto.setResponsable(proyectoDetails.getResponsable());
-            proyecto.setAnio(proyectoDetails.getAnio());
-            return ResponseEntity.ok(proyectoInvestigacionRepository.save(proyecto));
+    public ResponseEntity<ProyectoInvestigacionDTO> update(@PathVariable String id, @RequestBody ProyectoInvestigacionDTO proyectoDTO) {
+        ProyectoInvestigacionDTO updatedProyecto = proyectoInvestigacionService.updateProyecto(id, proyectoDTO);
+        if (updatedProyecto != null) {
+            return ResponseEntity.ok(updatedProyecto);
         } else {
             return ResponseEntity.notFound().build();
         }
@@ -48,12 +47,7 @@ public class ProyectoInvestigacionController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable String id) {
-        Optional<ProyectoInvestigacion> optionalProyecto = proyectoInvestigacionRepository.findById(id);
-        if (optionalProyecto.isPresent()) {
-            proyectoInvestigacionRepository.delete(optionalProyecto.get());
-            return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        proyectoInvestigacionService.deleteProyecto(id);
+        return ResponseEntity.noContent().build();
     }
 }

@@ -1,0 +1,132 @@
+.App {
+  text-align: center;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f5f5f5;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.App h1 {
+  color: #2c3e50;
+  margin-bottom: 30px;
+  font-size: 2.5em;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Estilos para botones de navegación */
+.nav-buttons {
+  margin-bottom: 30px;
+}
+
+.nav-buttons button {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  margin: 0 5px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s;
+}
+
+.nav-buttons button:hover {
+  background-color: #2980b9;
+}
+
+.nav-buttons button.active {
+  background-color: #2c3e50;
+}
+
+/* Estilos para botones de acción */
+button {
+  padding: 8px 16px;
+  margin: 5px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s;
+}
+
+button[type="submit"] {
+  background-color: #27ae60;
+  color: white;
+}
+
+button[type="submit"]:hover {
+  background-color: #219a52;
+}
+
+button[type="button"] {
+  background-color: #95a5a6;
+  color: white;
+}
+
+button[type="button"]:hover {
+  background-color: #7f8c8d;
+}
+
+/* Estilos para tablas */
+table {
+  background-color: white;
+  border-collapse: collapse;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+table th {
+  background-color: #34495e;
+  color: white;
+  padding: 12px;
+  font-weight: bold;
+}
+
+table td {
+  padding: 10px;
+  border-bottom: 1px solid #ecf0f1;
+}
+
+table tr:hover {
+  background-color: #f8f9fa;
+}
+
+/* Estilos para formularios */
+form {
+  background-color: white;
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+form div {
+  text-align: left;
+}
+
+form label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+form input, form select, form textarea {
+  padding: 8px;
+  border: 1px solid #bdc3c7;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+form input:focus, form select:focus, form textarea:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+}
+
+form small {
+  color: #7f8c8d;
+  font-size: 12px;
+  display: block;
+  margin-top: 5px;
+}

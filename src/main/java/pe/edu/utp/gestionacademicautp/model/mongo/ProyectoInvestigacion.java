@@ -4,13 +4,13 @@ import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Data
 @Document(collection = "proyectos_investigacion")
+@Data
 public class ProyectoInvestigacion {
     @Id
     private String id;
     private String titulo;
-    private String descripcion;
-    private String responsable;
-    private int anio;
+    private String resumen;
+    private String fechaInicio;
+    private String fechaFin;
 }
