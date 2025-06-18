@@ -83,29 +83,59 @@ gestionacademicautp/
 
 ## 🔧 Instalación y Configuración
 
-### Prerrequisitos
-- Java 17+
-- Node.js 16+
-- Docker y Docker Compose
-
-### 1. Levantar servicios de base de datos
+### 🚀 **Inicio Rápido (Recomendado)**
 ```bash
-docker-compose up -d
+./run.sh start
+```
+**¡Eso es todo!** El script automáticamente:
+- ✅ Verifica prerrequisitos
+- ✅ Inicia todas las bases de datos (PostgreSQL, MySQL, MongoDB, Redis)
+- ✅ Compila el backend (Spring Boot)
+- ✅ Instala dependencias del frontend (React)
+- ✅ Ejecuta todo el sistema
+
+**URLs disponibles:**
+- 🌐 **Frontend**: http://localhost:3000
+- 🔧 **Backend API**: http://localhost:8080
+
+### 📋 **Prerrequisitos**
+- Java 17+ ✅ (incluido en codespaces)
+- Node.js 16+ ✅ (incluido en codespaces)
+- Docker y Docker Compose ✅ (incluido en codespaces)
+
+### 🛠️ **Comandos Opcionales**
+```bash
+./run.sh build      # Solo compilar sin ejecutar
+./run.sh db         # Solo iniciar bases de datos
+./run.sh backend    # Solo backend
+./run.sh frontend   # Solo frontend
+./run.sh stop       # Detener bases de datos
+./run.sh help       # Ver todas las opciones
 ```
 
-### 2. Ejecutar el backend
-```bash
-./mvnw spring-boot:run
-```
+### 🎯 **Para GitHub Codespaces**
+1. Abre el repositorio en GitHub
+2. Click en "Code" → "Codespaces" → "Create codespace"
+3. Espera que el codespace inicie
+4. En la terminal ejecuta:
+   ```bash
+   ./run.sh start
+   ```
+5. ¡El sistema estará corriendo en minutos!
 
-### 3. Ejecutar el frontend
-```bash
-cd frontend
-npm install
-npm start
-```
+### 🎯 **Para desarrollo local**
+### 🎯 **Para desarrollo local**
+1. Clona el repositorio:
+   ```bash
+   git clone <url-del-repo>
+   cd gestionacademicautp
+   ```
+2. Ejecuta el sistema:
+   ```bash
+   ./run.sh start
+   ```
 
-### 4. Crear tablas de relación (PostgreSQL)
+### 🗄️ **Configuración Manual de Base de Datos (Solo si es necesario)**
 Conectar a PostgreSQL y ejecutar:
 ```sql
 -- Tabla de relación estudiante-curso
