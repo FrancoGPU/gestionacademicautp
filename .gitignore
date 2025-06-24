@@ -1,11 +1,14 @@
-# Compiled class files
+# Sistema de Gestión Académica UTP - .gitignore
+# ================================================
+
+### Java/Maven ###
 HELP.md
 target/
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
 
-### STS ###
+### Spring Boot ###
 .apt_generated
 .classpath
 .factorypath
@@ -15,7 +18,7 @@ target/
 .sts4-cache
 
 ### IntelliJ IDEA ###
-.idea
+.idea/
 *.iws
 *.iml
 *.ipr
@@ -32,8 +35,9 @@ build/
 
 ### VS Code ###
 .vscode/
+*.code-workspace
 
-### Frontend Node ###
+### Frontend Node.js ###
 frontend/node_modules/
 frontend/npm-debug.log*
 frontend/yarn-debug.log*
@@ -41,39 +45,6 @@ frontend/yarn-error.log*
 frontend/.pnpm-debug.log*
 frontend/build/
 frontend/dist/
-frontend/.env.local
-frontend/.env.development.local
-frontend/.env.test.local
-frontend/.env.production.local
-
-### Logs ###
-*.log
-logs/
-
-### Database ###
-*.db
-*.sqlite
-*.sqlite3
-
-### Docker ###
-.docker/
-
-### MacOS ###
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-
-### Windows ###
-*.tmp
-*.temp
-desktop.ini
-
-### Linux ###
-*~
 
 ### Environment Variables ###
 .env
@@ -81,63 +52,45 @@ desktop.ini
 .env.development
 .env.test
 .env.production
-
-### Temporary Files ###
-*.swp
-*.swo
-*~
-.tmp/
-temp/
-
-### IDE ###
-*.code-workspace
-*.ipr
-
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
-
-### VS Code ###
-.vscode/
-
-### Frontend ###
-frontend/node_modules/
-frontend/build/
 frontend/.env.local
 frontend/.env.development.local
 frontend/.env.test.local
 frontend/.env.production.local
-frontend/npm-debug.log*
-frontend/yarn-debug.log*
-frontend/yarn-error.log*
 
 ### Logs ###
 *.log
 logs/
 
-### Database ###
+### Database Files ###
 *.db
 *.sqlite
 *.sqlite3
 
-### Environment variables ###
-.env
-.env.local
-.env.*.local
-
 ### Docker ###
+.docker/
 docker-data/
 
-### MacOS ###
+### Operating Systems ###
+# MacOS
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
 
-### Windows ###
+# Windows
+*.tmp
+*.temp
+desktop.ini
 Thumbs.db
 ehthumbs.db
 Desktop.ini
+
+# Linux
+*~
+
+### Temporary Files ###
+*.swp
+*.swo
+.tmp/
+temp/

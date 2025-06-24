@@ -1,23 +1,28 @@
-# 🚀 Guía de Inicio Rápido para GitHub Codespaces
+# 🚀 GitHub Codespaces - Sistema de Gestión Académica UTP
 
-## ⚡ **Inicio en 3 pasos**
+Este proyecto está configurado para iniciarse **automáticamente** en GitHub Codespaces.
 
-### 1. **Crear Codespace**
-- Ve al repositorio en GitHub
-- Click **"Code"** → **"Codespaces"** → **"Create codespace"**
-- Espera que el codespace se inicialice (1-2 minutos)
+## ✅ Inicialización Automática
 
-### 2. **Ejecutar el Sistema**
-Una vez que el codespace esté listo, en la terminal ejecuta:
-```bash
-./run.sh start
-```
+Cuando abres este proyecto en un nuevo Codespace:
 
-### 3. **¡Listo!**
-El script automáticamente:
-- ✅ Verificará que todo esté instalado (Java, Node.js, Docker)
-- ✅ Iniciará todas las bases de datos (PostgreSQL, MySQL, MongoDB, Redis)
-- ✅ Compilará el backend (Spring Boot)
+1. **Configuración automática**: El sistema se configura automáticamente
+2. **Bases de datos**: PostgreSQL, MySQL, MongoDB y Redis se inician automáticamente
+3. **Datos de prueba**: Se insertan automáticamente datos de muestra en todas las bases de datos
+4. **Backend**: Spring Boot se compila e inicia automáticamente en puerto 8080
+5. **Frontend**: React se instala e inicia automáticamente en puerto 3000
+
+⏱️ **Tiempo total de inicialización**: 3-5 minutos
+
+## 🌐 URLs Disponibles
+
+Una vez que el Codespace esté completamente iniciado:
+
+- **Frontend (React)**: `https://[codespace-name]-3000.app.github.dev`
+- **Backend API**: `https://[codespace-name]-8080.app.github.dev`
+- **API Estudiantes**: `https://[codespace-name]-8080.app.github.dev/api/estudiantes`
+- **API Cursos**: `https://[codespace-name]-8080.app.github.dev/api/cursos`
+- **API Proyectos**: `https://[codespace-name]-8080.app.github.dev/api/proyectos`
 - ✅ Instalará e iniciará el frontend (React)
 
 ## 🌐 **URLs Disponibles**

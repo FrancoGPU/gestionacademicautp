@@ -2,6 +2,41 @@
 
 Sistema integral de gestión académica desarrollado con Spring Boot y React, que permite administrar estudiantes, cursos y proyectos de investigación con múltiples fuentes de datos.
 
+## 🚀 **Inicio Rápido**
+
+### GitHub Codespaces (Recomendado)
+**¡Configuración automática en menos de 5 minutos!**
+
+1. Ve al repositorio en GitHub
+2. Click **"Code"** → **"Codespaces"** → **"Create codespace"**
+3. **¡Listo!** El sistema se inicializa automáticamente con todas las bases de datos y datos de prueba
+
+📖 [Ver guía detallada de Codespaces](CODESPACE.md)
+
+### Instalación Local
+```bash
+git clone [repository-url]
+cd gestionacademicautp
+./run.sh start
+```
+
+## 📁 Estructura del Proyecto
+
+```
+gestionacademicautp/
+├── src/                    # Código fuente Java (Spring Boot)
+├── frontend/               # Aplicación React
+├── scripts/                # Scripts organizados
+│   ├── database/          # Inicialización de BD
+│   └── deployment/        # Scripts de ejecución
+├── docs/                   # Documentación
+├── .devcontainer/         # Configuración Codespaces
+├── docker-compose.yml     # Configuración contenedores
+└── README.md              # Este archivo
+```
+
+📖 [Ver documentación completa de scripts](scripts/README.md)
+
 ## 🏗️ Arquitectura
 
 ### Backend (Spring Boot)
@@ -83,20 +118,48 @@ gestionacademicautp/
 
 ## 🔧 Instalación y Configuración
 
-### 🚀 **Inicio Rápido (Recomendado)**
-```bash
-./run.sh start
-```
-**¡Eso es todo!** El script automáticamente:
-- ✅ Verifica prerrequisitos
-- ✅ Inicia todas las bases de datos (PostgreSQL, MySQL, MongoDB, Redis)
-- ✅ Compila el backend (Spring Boot)
-- ✅ Instala dependencias del frontend (React)
-- ✅ Ejecuta todo el sistema
+### ✅ Estado del Setup
 
-**URLs disponibles:**
-- 🌐 **Frontend**: http://localhost:3000
-- 🔧 **Backend API**: http://localhost:8080
+🎉 **¡Su codespace está completamente configurado y listo para usar!**
+
+### Lo que se configura automáticamente al abrir el codespace:
+- ✅ Servicios de base de datos (MySQL, PostgreSQL, MongoDB, Redis) se inician automáticamente
+- ✅ Backend Java se compila automáticamente
+- ✅ Frontend React instala dependencias automáticamente
+- ✅ Todo el sistema se inicia automáticamente
+- ✅ Tests se validan automáticamente
+
+### 🚀 **Para usuarios de GitHub Codespaces (¡Automático!)**
+1. Abrir el repositorio en GitHub
+2. Click en "Code" → "Codespaces" → "Create codespace"
+3. **¡Esperar 2-3 minutos!** El sistema se inicia automáticamente
+4. Abrir http://localhost:3000 cuando aparezca la notificación
+
+### 🛠️ **Si necesitas reiniciar manualmente:**
+```bash
+# ¡UN SOLO COMANDO para todo!
+./run.sh start
+
+# Comandos alternativos si necesitas control granular:
+./setup.sh          # Solo configurar (raramente necesario)
+./mvnw spring-boot:run    # Solo backend
+cd frontend && npm start  # Solo frontend
+./mvnw test              # Solo tests
+```
+
+### 🚀 **Inicio Rápido**
+
+#### **Para GitHub Codespaces (Recomendado - ¡Automático!)**
+1. Abrir repositorio → "Code" → "Codespaces" → "Create codespace"
+2. **¡Esperar! El sistema se inicia automáticamente en 2-3 minutos**
+3. Abrir http://localhost:3000 cuando esté listo
+
+#### **Para desarrollo local**
+```bash
+git clone <url-del-repo>
+cd gestionacademicautp
+./run.sh start  # ¡Un solo comando!
+```
 
 ### 📋 **Prerrequisitos**
 - Java 17+ ✅ (incluido en codespaces)
@@ -113,27 +176,9 @@ gestionacademicautp/
 ./run.sh help       # Ver todas las opciones
 ```
 
-### 🎯 **Para GitHub Codespaces**
-1. Abre el repositorio en GitHub
-2. Click en "Code" → "Codespaces" → "Create codespace"
-3. Espera que el codespace inicie
-4. En la terminal ejecuta:
-   ```bash
-   ./run.sh start
-   ```
-5. ¡El sistema estará corriendo en minutos!
-
-### 🎯 **Para desarrollo local**
-### 🎯 **Para desarrollo local**
-1. Clona el repositorio:
-   ```bash
-   git clone <url-del-repo>
-   cd gestionacademicautp
-   ```
-2. Ejecuta el sistema:
-   ```bash
-   ./run.sh start
-   ```
+**URLs disponibles:**
+- 🌐 **Frontend**: http://localhost:3000
+- 🔧 **Backend API**: http://localhost:8080
 
 ### 🗄️ **Configuración Manual de Base de Datos (Solo si es necesario)**
 Conectar a PostgreSQL y ejecutar:

@@ -2,7 +2,7 @@ version: '3.8'
 services:
   mysql:
     image: mysql:8.0
-    container_name: mysql_gestionacademicautp
+    container_name: mysql-container
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: utp_gestion_academica_db_mysql
@@ -10,7 +10,9 @@ services:
       MYSQL_PASSWORD: 123456
     ports:
       - "3306:3306"
-    command: --default-authentication-plugin=mysql_native_password
+    command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - ./scripts/database/init-mysql.sql:/docker-entrypoint-initdb.d/init-mysql.sql
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 10s
@@ -19,13 +21,15 @@ services:
 
   postgres:
     image: postgres:15
-    container_name: postgres_gestionacademicautp
+    container_name: postgres-container
     environment:
       POSTGRES_DB: utp_gestion_academica_db_pg
       POSTGRES_USER: franco
       POSTGRES_PASSWORD: 123456
     ports:
       - "5432:5432"
+    volumes:
+      - ./scripts/database/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U franco"]
       interval: 10s
@@ -34,20 +38,22 @@ services:
 
   mongo:
     image: mongo:7
-    container_name: mongo_gestionacademicautp
+    container_name: mongo-container
     environment:
-      MONGO_INITDB_DATABASE: utp_proyectos_investigacion_db
+      MONGO_INITDB_DATABASE: utp_gestion_academica_db_mongo
     ports:
       - "27017:27017"
+    volumes:
+      - ./scripts/database/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js
     healthcheck:
-      test: ["CMD", "mongo", "--eval", "db.adminCommand('ping')"]
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
       interval: 10s
       timeout: 5s
       retries: 5
 
   redis:
     image: redis:7
-    container_name: redis_gestionacademicautp
+    container_name: redis-container
     ports:
       - "6379:6379"
     healthcheck:
