@@ -9,6 +9,6 @@ REAL_SCRIPT="$SCRIPT_DIR/scripts/database/init-database.sh"
 if [ -f "$REAL_SCRIPT" ]; then
     exec "$REAL_SCRIPT" "$@"
 else
-    echo "❌ Error: No se encontró el script $REAL_SCRIPT"
+    echo "❌ Error: No se encontró el script de BD en scripts/database/init-database.sh"
     exit 1
 fi
