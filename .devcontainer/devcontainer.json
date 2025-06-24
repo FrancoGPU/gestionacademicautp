@@ -2,7 +2,10 @@
   "name": "Spring Boot Multi-DB",
   "image": "mcr.microsoft.com/devcontainers/java:17",
   "features": {
-    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {},
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "18"
+    }
   },
   "postCreateCommand": "chmod +x ./run.sh ./init-database.sh ./scripts/deployment/* ./scripts/database/* && ./scripts/deployment/codespace-init.sh",
   "customizations": {
