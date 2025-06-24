@@ -1,8 +1,7 @@
 #!/bin/bash
 
 # Script de inicialización de base de datos
-# echo "📊 Estudiantes en PostgreSQL:"
-docker exec -i postgres-container psql -U franco -d utp_gestion_academica_db_pg -c "SELECT COUNT(*) as total_estudiantes FROM estudiante;"nfigura automáticamente PostgreSQL, MySQL y MongoDB con datos de prueba
+# Configura automáticamente PostgreSQL, MySQL y MongoDB con datos de prueba
 # Basado en los modelos Java del proyecto
 
 set -e
@@ -59,7 +58,7 @@ echo "✅ Inicialización de bases de datos completada!"
 # Verificar datos
 echo "🔍 Verificando datos insertados..."
 echo "📊 Estudiantes en PostgreSQL:"
-docker exec -i postgres-container psql -U postgres -d gestiones -c "SELECT COUNT(*) as total_estudiantes FROM estudiante;"
+docker exec -i postgres-container psql -U franco -d utp_gestion_academica_db_pg -c "SELECT COUNT(*) as total_estudiantes FROM estudiante;"
 
 echo "📚 Cursos en MySQL:"
 docker exec -i mysql-container mysql -u root -proot -D utp_gestion_academica_db_mysql -e "SELECT COUNT(*) as total_cursos FROM cursos;"
