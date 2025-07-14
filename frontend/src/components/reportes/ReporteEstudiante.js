@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import profesorService from '../../services/profesorService';
 
 function ReporteEstudiante({ estudianteId, refreshKey }) {
   const [id, setId] = useState(estudianteId || '');
   const [reporte, setReporte] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [profesoresPorCurso, setProfesoresPorCurso] = useState({});
 
   useEffect(() => {
     if (estudianteId) {
@@ -24,6 +26,7 @@ function ReporteEstudiante({ estudianteId, refreshKey }) {
   const handleBuscar = async (idBuscar) => {
     setLoading(true);
     setReporte(null);
+    setProfesoresPorCurso({});
     try {
       const timestamp = Date.now();
       const res = await fetch(`http://localhost:8080/api/reportes/estudiante/${idBuscar || id}?_=${timestamp}`, {
@@ -37,6 +40,26 @@ function ReporteEstudiante({ estudianteId, refreshKey }) {
       if (res.ok) {
         const data = await res.json();
         setReporte(data);
+        
+        // Cargar profesores para los cursos del estudiante
+        if (data.cursos && data.cursos.length > 0) {
+          const cursoIds = data.cursos.map(curso => curso.id);
+          const profesoresMap = {};
+          
+          for (const cursoId of cursoIds) {
+            try {
+              const profesores = await profesorService.getProfesoresByCurso(cursoId);
+              profesoresMap[cursoId] = profesores;
+              console.log(`Profesores para curso ${cursoId}:`, profesores);
+            } catch (error) {
+              console.error(`Error al cargar profesores para curso ${cursoId}:`, error);
+              profesoresMap[cursoId] = [];
+            }
+          }
+          
+          console.log('Mapa completo de profesores:', profesoresMap);
+          setProfesoresPorCurso(profesoresMap);
+        }
       } else {
         setReporte(null);
       }
@@ -79,21 +102,60 @@ function ReporteEstudiante({ estudianteId, refreshKey }) {
                 {reporte.cursos.map(c => (
                   <div key={c.id} style={{ 
                     padding: '8px 0', 
-                    borderBottom: '1px solid #c8e6c9',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center'
+                    borderBottom: '1px solid #c8e6c9'
                   }}>
-                    <span><b>{c.nombre}</b> ({c.codigo})</span>
-                    <span style={{ 
-                      backgroundColor: '#4caf50', 
-                      color: 'white', 
-                      padding: '2px 8px', 
-                      borderRadius: 12, 
-                      fontSize: '12px' 
+                    <div style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      marginBottom: '5px'
                     }}>
-                      {c.creditos} créditos
-                    </span>
+                      <span><b>{c.nombre}</b> ({c.codigo})</span>
+                      <span style={{ 
+                        backgroundColor: '#4caf50', 
+                        color: 'white', 
+                        padding: '2px 8px', 
+                        borderRadius: 12, 
+                        fontSize: '12px' 
+                      }}>
+                        {c.creditos} créditos
+                      </span>
+                    </div>
+                    {/* Mostrar profesores asignados */}
+                    {profesoresPorCurso[c.id] && profesoresPorCurso[c.id].length > 0 && (
+                      <div style={{ 
+                        marginLeft: '10px', 
+                        marginTop: '8px',
+                        fontSize: '12px', 
+                        color: '#666',
+                        display: 'flex',
+                        alignItems: 'center',
+                        flexWrap: 'wrap',
+                        gap: '5px'
+                      }}>
+                        <strong style={{ marginRight: '5px' }}>👨‍🏫 Profesores: </strong>
+                        {profesoresPorCurso[c.id].map((prof, index) => (
+                          <span key={prof.id} style={{
+                            backgroundColor: '#9b59b6',
+                            color: 'white',
+                            padding: '2px 6px',
+                            borderRadius: '10px',
+                            fontSize: '11px',
+                            fontWeight: '500',
+                            display: 'inline-block'
+                          }}>
+                            {prof.nombre} {prof.apellido}
+                            <span style={{ 
+                              fontSize: '10px', 
+                              opacity: '0.8',
+                              marginLeft: '3px'
+                            }}>
+                              ({prof.especialidad})
+                            </span>
+                          </span>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>

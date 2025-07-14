@@ -25,10 +25,11 @@ public class EstudianteService {
     @Transactional(readOnly = true, transactionManager = "postgresTransactionManager")
     public List<EstudianteDTO> getAll() {
         try {
-            return estudianteRepository.findAll().stream().map(this::convertToDtoWithRelations).collect(Collectors.toList());
+            return estudianteRepository.findAll().stream().map(this::convertToDtoWithRelations)
+                    .collect(Collectors.toList());
         } catch (Exception e) {
-            // Log the error and return an empty list
-            System.err.println("Error fetching students: " + e.getMessage());
+            // Registrar el error y devolver una lista vacía
+            System.err.println("Error al obtener estudiantes: " + e.getMessage());
             return new ArrayList<>();
         }
     }
@@ -42,17 +43,17 @@ public class EstudianteService {
     public EstudianteDTO create(EstudianteDTO estudianteDTO) {
         Estudiante estudiante = convertToEntity(estudianteDTO);
         Estudiante savedEstudiante = estudianteRepository.save(estudiante);
-        
-        // Save course relationships
+
+        // Guardar relaciones con cursos
         if (estudianteDTO.getCursoIds() != null) {
             updateCursoRelationships(savedEstudiante.getId(), estudianteDTO.getCursoIds());
         }
-        
-        // Save project relationships
+
+        // Guardar relaciones con proyectos
         if (estudianteDTO.getProyectoIds() != null) {
             updateProyectoRelationships(savedEstudiante.getId(), estudianteDTO.getProyectoIds());
         }
-        
+
         return convertToDto(savedEstudiante);
     }
 
@@ -64,17 +65,17 @@ public class EstudianteService {
             estudiante.setCorreo(estudianteDTO.getCorreo());
             estudiante.setFecha_nacimiento(estudianteDTO.getFecha_nacimiento());
             Estudiante updatedEstudiante = estudianteRepository.save(estudiante);
-            
-            // Update course relationships
+
+            // Actualizar relaciones con cursos
             if (estudianteDTO.getCursoIds() != null) {
                 updateCursoRelationships(id, estudianteDTO.getCursoIds());
             }
-            
-            // Update project relationships
+
+            // Actualizar relaciones con proyectos
             if (estudianteDTO.getProyectoIds() != null) {
                 updateProyectoRelationships(id, estudianteDTO.getProyectoIds());
             }
-            
+
             reporteService.invalidarCacheReporte(id);
             return convertToDto(updatedEstudiante);
         }).orElse(null);
@@ -82,10 +83,10 @@ public class EstudianteService {
 
     @Transactional(transactionManager = "postgresTransactionManager")
     public void delete(Integer id) {
-        // Delete relationships first
+        // Eliminar relaciones primero
         postgresJdbcTemplate.update("DELETE FROM estudiante_curso WHERE estudiante_id = ?", id);
         postgresJdbcTemplate.update("DELETE FROM estudiante_proyecto WHERE estudiante_id = ?", id);
-        // Then delete the student
+        // Luego eliminar el estudiante
         estudianteRepository.deleteById(id);
         reporteService.invalidarCacheReporte(id);
     }
@@ -102,23 +103,21 @@ public class EstudianteService {
 
     private EstudianteDTO convertToDtoWithRelations(Estudiante estudiante) {
         EstudianteDTO dto = convertToDto(estudiante);
-        
-        // Get related course IDs
+
+        // Obtener IDs de cursos relacionados
         List<Integer> cursoIds = postgresJdbcTemplate.queryForList(
-            "SELECT curso_id FROM estudiante_curso WHERE estudiante_id = ?", 
-            Integer.class, 
-            estudiante.getId()
-        );
+                "SELECT curso_id FROM estudiante_curso WHERE estudiante_id = ?",
+                Integer.class,
+                estudiante.getId());
         dto.setCursoIds(cursoIds.isEmpty() ? null : cursoIds);
-        
-        // Get related project IDs
+
+        // Obtener IDs de proyectos relacionados
         List<String> proyectoIds = postgresJdbcTemplate.queryForList(
-            "SELECT proyecto_id FROM estudiante_proyecto WHERE estudiante_id = ?", 
-            String.class, 
-            estudiante.getId()
-        );
+                "SELECT proyecto_id FROM estudiante_proyecto WHERE estudiante_id = ?",
+                String.class,
+                estudiante.getId());
         dto.setProyectoIds(proyectoIds.isEmpty() ? null : proyectoIds);
-        
+
         return dto;
     }
 
@@ -132,28 +131,26 @@ public class EstudianteService {
     }
 
     private void updateCursoRelationships(Integer estudianteId, List<Integer> cursoIds) {
-        // Delete existing relationships
+        // Eliminar relaciones existentes
         postgresJdbcTemplate.update("DELETE FROM estudiante_curso WHERE estudiante_id = ?", estudianteId);
-        
-        // Insert new relationships
+
+        // Insertar nuevas relaciones
         for (Integer cursoId : cursoIds) {
             postgresJdbcTemplate.update(
-                "INSERT INTO estudiante_curso (estudiante_id, curso_id) VALUES (?, ?) ON CONFLICT DO NOTHING",
-                estudianteId, cursoId
-            );
+                    "INSERT INTO estudiante_curso (estudiante_id, curso_id) VALUES (?, ?) ON CONFLICT DO NOTHING",
+                    estudianteId, cursoId);
         }
     }
 
     private void updateProyectoRelationships(Integer estudianteId, List<String> proyectoIds) {
-        // Delete existing relationships
+        // Eliminar relaciones existentes
         postgresJdbcTemplate.update("DELETE FROM estudiante_proyecto WHERE estudiante_id = ?", estudianteId);
-        
-        // Insert new relationships
+
+        // Insertar nuevas relaciones
         for (String proyectoId : proyectoIds) {
             postgresJdbcTemplate.update(
-                "INSERT INTO estudiante_proyecto (estudiante_id, proyecto_id) VALUES (?, ?) ON CONFLICT DO NOTHING",
-                estudianteId, proyectoId
-            );
+                    "INSERT INTO estudiante_proyecto (estudiante_id, proyecto_id) VALUES (?, ?) ON CONFLICT DO NOTHING",
+                    estudianteId, proyectoId);
         }
     }
 }

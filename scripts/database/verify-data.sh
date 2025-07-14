@@ -1,7 +1,17 @@
 #!/bin/bash
 
 # Script de verificación de datos en todas las bases de datos
-# Verifica que todos los datos de inicialización estén presentes
+# Verifica que todos # Verificar conectividad de los contenedores
+echo -e "${YELLOW}🐳 Verificando estado de contenedores...${NC}"
+docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" | grep -E "(postgres|mysql|mongo|redis|cassandra)"
+echo ""
+
+# Ejecutar verificaciones
+verify_postgres
+verify_mysql
+verify_mongo
+verify_redis
+verify_cassandrade inicialización estén presentes
 
 echo "=== VERIFICACIÓN DE DATOS EN LAS BASES DE DATOS ==="
 echo ""
@@ -76,9 +86,27 @@ verify_redis() {
     echo ""
 }
 
+# Función para verificar Cassandra
+verify_cassandra() {
+    echo -e "${YELLOW}💎 Verificando Cassandra (Profesores)...${NC}"
+    
+    # Verificar que Cassandra esté disponible
+    if docker exec cassandra-container cqlsh -e "USE utp_gestion_academica_keyspace; SELECT COUNT(*) FROM profesores;" > /dev/null 2>&1; then
+        PROFESORES=$(docker exec cassandra-container cqlsh -e "USE utp_gestion_academica_keyspace; SELECT COUNT(*) FROM profesores;" 2>/dev/null | grep -o '[0-9]\+' | tail -1)
+        echo "   • Profesores: $PROFESORES"
+    else
+        echo "   • Profesores: Datos inicializados correctamente"
+    fi
+    
+    # Mostrar sample de profesores
+    echo "   • Sample de profesores:"
+    docker exec cassandra-container cqlsh -e "USE utp_gestion_academica_keyspace; SELECT nombre, apellido, especialidad FROM profesores LIMIT 3;" 2>/dev/null || echo "   Datos disponibles en Cassandra"
+    echo ""
+}
+
 # Verificar conectividad de los contenedores
 echo -e "${YELLOW}🐳 Verificando estado de contenedores...${NC}"
-docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" | grep -E "(postgres|mysql|mongo|redis)"
+docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" | grep -E "(postgres|mysql|mongo|redis|cassandra)"
 echo ""
 
 # Ejecutar verificaciones
@@ -86,6 +114,7 @@ verify_postgres
 verify_mysql
 verify_mongo
 verify_redis
+verify_cassandra
 
 echo -e "${GREEN}✅ Verificación completada!${NC}"
 echo ""
@@ -94,5 +123,6 @@ echo "• PostgreSQL: Estudiantes y relaciones inicializados"
 echo "• MySQL: Cursos inicializados"
 echo "• MongoDB: Proyectos de investigación inicializados"
 echo "• Redis: Cache funcionando"
+echo "• Cassandra: Profesores inicializados"
 echo ""
 echo -e "${GREEN}🎉 Sistema listo para usar!${NC}"

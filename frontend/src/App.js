@@ -3,6 +3,7 @@ import { ReporteEstudiante } from './components/reportes';
 import { EstudiantesTable, EstudianteForm } from './components/estudiantes';
 import { CursosTable, CursoForm, CursoDetalle } from './components/cursos';
 import { ProyectosTable, ProyectoForm, ProyectoDetalle } from './components/proyectos';
+import { ProfesoresTable } from './components/profesores';
 import './styles/App.css';
 
 function App() {
@@ -24,6 +25,9 @@ function App() {
   const [showProyectoForm, setShowProyectoForm] = useState(false);
   const [refreshProyectos, setRefreshProyectos] = useState(false);
   const [selectedProyectoId, setSelectedProyectoId] = useState(null);
+
+  // Profesores
+  const [showProfesores, setShowProfesores] = useState(false);
 
   // Estudiantes
   const handleSelect = (id) => {
@@ -144,111 +148,155 @@ function App() {
 
   return (
     <div className="App">
-      <h1>Sistema de Gestión Académica UTP</h1>
-      <div className="nav-buttons">
-        <button 
-          className={!showCursos && !showProyectos ? 'active' : ''}
-          onClick={() => {setShowForm(false);setShowCursos(false);setShowProyectos(false);}}
-        >
-          👥 Estudiantes
-        </button>
-        <button 
-          className={showCursos ? 'active' : ''}
-          onClick={() => {setShowForm(false);setShowCursos(true);setShowProyectos(false);}}
-        >
-          📚 Cursos
-        </button>
-        <button 
-          className={showProyectos ? 'active' : ''}
-          onClick={() => {setShowForm(false);setShowCursos(false);setShowProyectos(true);}}
-        >
-          🔬 Proyectos
-        </button>
-      </div>
-      {/* Estudiantes */}
-      {!showCursos && !showProyectos && (
-        <>
-          <button 
-            onClick={handleCreate} 
-            style={{
-              marginBottom: 20, 
-              backgroundColor: '#27ae60', 
-              color: 'white',
-              padding: '12px 24px',
-              fontSize: '16px',
-              borderRadius: '6px',
-              border: 'none',
-              cursor: 'pointer'
-            }}
-          >
-            ➕ Crear Estudiante
-          </button>
-          {showForm ? (
-            <EstudianteForm estudiante={editingEst} onSave={handleSave} onCancel={() => setShowForm(false)} />
-          ) : (
-            <>
-              <EstudiantesTable key={refresh} refreshKey={refresh} onSelect={handleSelect} onEdit={handleEdit} />
-              {selectedId && <ReporteEstudiante estudianteId={selectedId} refreshKey={refresh} />}
-            </>
+      {/* Header Minimalista */}
+      <header className="app-header">
+        <div className="header-content">
+          <div className="logo-section">
+            <h1 className="app-title">Sistema de Gestión Académica</h1>
+            <p className="app-subtitle">Universidad Tecnológica del Perú</p>
+          </div>
+        </div>
+      </header>
+
+      {/* Navegación Principal */}
+      <nav className="main-nav">
+        <div className="nav-content">
+          <div className="nav-buttons">
+            <button
+              className={`nav-btn ${!showCursos && !showProyectos && !showProfesores ? 'active' : ''}`}
+              onClick={() => {
+                setShowCursos(false);
+                setShowProyectos(false);
+                setShowProfesores(false);
+                setSelectedId(null);
+                setShowForm(false);
+              }}
+            >
+              👥 Estudiantes
+            </button>
+            <button
+              className={`nav-btn ${showCursos ? 'active' : ''}`}
+              onClick={() => {
+                setShowCursos(true);
+                setShowProyectos(false);
+                setShowProfesores(false);
+                setSelectedCursoId(null);
+                setShowCursoForm(false);
+              }}
+            >
+              📚 Cursos
+            </button>
+            <button
+              className={`nav-btn ${showProfesores ? 'active' : ''}`}
+              onClick={() => {
+                setShowProfesores(true);
+                setShowCursos(false);
+                setShowProyectos(false);
+              }}
+            >
+              👨‍🏫 Profesores
+            </button>
+            <button
+              className={`nav-btn ${showProyectos ? 'active' : ''}`}
+              onClick={() => {
+                setShowProyectos(true);
+                setShowCursos(false);
+                setShowProfesores(false);
+                setSelectedProyectoId(null);
+                setShowProyectoForm(false);
+              }}
+            >
+              🚀 Proyectos
+            </button>
+          </div>
+        </div>
+      </nav>
+
+      {/* Contenido Principal */}
+      <main className="main-content">
+          
+          {/* Sección de Estudiantes */}
+          {!showCursos && !showProyectos && !showProfesores && (
+            <div>
+              {showForm ? (
+                <EstudianteForm estudiante={editingEst} onSave={handleSave} onCancel={() => setShowForm(false)} />
+              ) : (
+                <>
+                  <EstudiantesTable key={refresh} refreshKey={refresh} onSelect={handleSelect} onEdit={handleEdit} />
+                  {selectedId && (
+                    <div style={{ marginTop: '2rem' }}>
+                      <ReporteEstudiante estudianteId={selectedId} refreshKey={refresh} />
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
           )}
-        </>
-      )}
-      {/* Cursos */}
-      {showCursos && (
-        <>
-          <button 
-            onClick={handleCreateCurso} 
-            style={{
-              marginBottom: 20,
-              backgroundColor: '#3498db', 
-              color: 'white',
-              padding: '12px 24px',
-              fontSize: '16px',
-              borderRadius: '6px',
-              border: 'none',
-              cursor: 'pointer'
-            }}
-          >
-            ➕ Crear Curso
-          </button>
-          {showCursoForm ? (
-            <CursoForm curso={editingCurso} onSave={handleSaveCurso} onCancel={() => setShowCursoForm(false)} />
-          ) : (
-            <>
-              <CursosTable key={refreshCursos} refreshKey={refreshCursos} onSelect={handleSelectCurso} onEdit={handleEditCurso} />
-              {selectedCursoId && <CursoDetalle cursoId={selectedCursoId} onClose={() => setSelectedCursoId(null)} />}
-            </>
+
+          {/* Sección de Cursos */}
+          {showCursos && (
+            <div className="section-container">
+              <div className="section-header">
+                <h2 className="section-title">
+                  <span className="section-icon">📚</span>
+                  Gestión de Cursos
+                </h2>
+                <button 
+                  onClick={handleCreateCurso} 
+                  className="btn-create cursos"
+                >
+                  <span>➕</span>
+                  Nuevo Curso
+                </button>
+              </div>
+              <div className="section-content">
+                {showCursoForm ? (
+                  <CursoForm curso={editingCurso} onSave={handleSaveCurso} onCancel={() => setShowCursoForm(false)} />
+                ) : (
+                  <>
+                    <CursosTable key={refreshCursos} refreshKey={refreshCursos} onSelect={handleSelectCurso} onEdit={handleEditCurso} />
+                    {selectedCursoId && <CursoDetalle cursoId={selectedCursoId} onClose={() => setSelectedCursoId(null)} />}
+                  </>
+                )}
+              </div>
+            </div>
           )}
-        </>
-      )}
-      {/* Proyectos */}
-      {showProyectos && (
-        <>
-          <button 
-            onClick={handleCreateProyecto} 
-            style={{
-              marginBottom: 20,
-              backgroundColor: '#9b59b6', 
-              color: 'white',
-              padding: '12px 24px',
-              fontSize: '16px',
-              borderRadius: '6px',
-              border: 'none',
-              cursor: 'pointer'
-            }}
-          >
-            ➕ Crear Proyecto
-          </button>
-          {showProyectoForm ? (
-            <ProyectoForm proyecto={editingProyecto} onSave={handleSaveProyecto} onCancel={() => setShowProyectoForm(false)} />
-          ) : (
-            <>
-              <ProyectosTable key={refreshProyectos} refreshKey={refreshProyectos} onSelect={handleSelectProyecto} onEdit={handleEditProyecto} />
-              {selectedProyectoId && <ProyectoDetalle proyectoId={selectedProyectoId} onClose={() => setSelectedProyectoId(null)} />}
-            </>
+
+          {/* Sección de Proyectos */}
+          {showProyectos && (
+            <div className="section-container">
+              <div className="section-header">
+                <h2 className="section-title">
+                  <span className="section-icon">🔬</span>
+                  Gestión de Proyectos
+                </h2>
+                <button 
+                  onClick={handleCreateProyecto} 
+                  className="btn-create proyectos"
+                >
+                  <span>➕</span>
+                  Nuevo Proyecto
+                </button>
+              </div>
+              <div className="section-content">
+                {showProyectoForm ? (
+                  <ProyectoForm proyecto={editingProyecto} onSave={handleSaveProyecto} onCancel={() => setShowProyectoForm(false)} />
+                ) : (
+                  <>
+                    <ProyectosTable key={refreshProyectos} refreshKey={refreshProyectos} onSelect={handleSelectProyecto} onEdit={handleEditProyecto} />
+                    {selectedProyectoId && <ProyectoDetalle proyectoId={selectedProyectoId} onClose={() => setSelectedProyectoId(null)} />}
+                  </>
+                )}
+              </div>
+            </div>
           )}
-        </>
-      )}
+
+          {/* Sección de Profesores */}
+          {showProfesores && (
+            <ProfesoresTable />
+          )}
+
+      </main>
     </div>
   );
 }

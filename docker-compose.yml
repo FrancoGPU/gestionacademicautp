@@ -52,7 +52,7 @@ services:
       retries: 5
 
   redis:
-    image: redis:7
+    image: redis:7-alpine
     container_name: redis-container
     ports:
       - "6379:6379"
@@ -61,3 +61,24 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+
+  cassandra:
+    image: cassandra:4.1
+    container_name: cassandra-container
+    environment:
+      CASSANDRA_CLUSTER_NAME: "UTP_Cluster"
+      CASSANDRA_DC: "datacenter1"
+      CASSANDRA_RACK: "rack1"
+      CASSANDRA_ENDPOINT_SNITCH: "GossipingPropertyFileSnitch"
+      MAX_HEAP_SIZE: "512M"
+      HEAP_NEWSIZE: "100M"
+    ports:
+      - "9042:9042"
+    volumes:
+      - ./scripts/database/init-cassandra.cql:/docker-entrypoint-initdb.d/init-cassandra.cql
+    healthcheck:
+      test: ["CMD", "cqlsh", "-e", "describe keyspaces"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s

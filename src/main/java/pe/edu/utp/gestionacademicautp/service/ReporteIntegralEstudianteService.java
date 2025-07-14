@@ -35,7 +35,7 @@ public class ReporteIntegralEstudianteService {
             return null;
         }
 
-        // Mapper for Estudiante
+        // Mapeo para Estudiante
         EstudianteDTO estudianteDTO = new EstudianteDTO();
         estudianteDTO.setId(estudiante.getId());
         estudianteDTO.setNombre(estudiante.getNombre());
@@ -43,10 +43,10 @@ public class ReporteIntegralEstudianteService {
         estudianteDTO.setCorreo(estudiante.getCorreo());
         estudianteDTO.setFecha_nacimiento(estudiante.getFecha_nacimiento());
 
-        // Get courses associated with the student from the database
+        // Obtener los cursos asociados al estudiante desde la base de datos
         List<CursoDTO> cursoDTOs = getCursosForEstudiante(estudianteId);
-        
-        // Get projects associated with the student from the database
+
+        // Obtener los proyectos asociados al estudiante desde la base de datos
         List<ProyectoInvestigacionDTO> proyectoDTOs = getProyectosForEstudiante(estudianteId);
 
         ReporteIntegralEstudianteDTO reporte = new ReporteIntegralEstudianteDTO();
@@ -59,18 +59,19 @@ public class ReporteIntegralEstudianteService {
 
     private List<CursoDTO> getCursosForEstudiante(Integer estudianteId) {
         try {
-            // First, get the course IDs from PostgreSQL relationships table
+            // Primero, obtener los IDs de los cursos desde la tabla de relaciones en
+            // PostgreSQL
             String sqlRelaciones = "SELECT curso_id FROM estudiante_curso WHERE estudiante_id = ?";
             List<Integer> cursoIds = postgresJdbcTemplate.queryForList(sqlRelaciones, Integer.class, estudianteId);
-            
+
             if (cursoIds.isEmpty()) {
                 return new ArrayList<>();
             }
-            
-            // Then, get the course details from MySQL
+
+            // Luego, obtener los detalles de los cursos desde MySQL
             String placeholders = String.join(",", cursoIds.stream().map(id -> "?").toArray(String[]::new));
             String sqlCursos = "SELECT id, nombre, codigo, creditos FROM cursos WHERE id IN (" + placeholders + ")";
-            
+
             return mysqlJdbcTemplate.query(sqlCursos, (rs, rowNum) -> {
                 CursoDTO curso = new CursoDTO();
                 curso.setId(rs.getInt("id"));
@@ -80,7 +81,8 @@ public class ReporteIntegralEstudianteService {
                 return curso;
             }, cursoIds.toArray());
         } catch (Exception e) {
-            System.err.println("Error getting courses for student " + estudianteId + ": " + e.getMessage());
+            System.err
+                    .println("Error obteniendo los cursos para el estudiante " + estudianteId + ": " + e.getMessage());
             e.printStackTrace();
             return new ArrayList<>();
         }
@@ -88,16 +90,16 @@ public class ReporteIntegralEstudianteService {
 
     private List<ProyectoInvestigacionDTO> getProyectosForEstudiante(Integer estudianteId) {
         String sql = """
-            SELECT ep.proyecto_id
-            FROM estudiante_proyecto ep
-            WHERE ep.estudiante_id = ?
-            """;
-        
+                SELECT ep.proyecto_id
+                FROM estudiante_proyecto ep
+                WHERE ep.estudiante_id = ?
+                """;
+
         try {
             List<String> proyectoIds = postgresJdbcTemplate.queryForList(sql, String.class, estudianteId);
             List<ProyectoInvestigacionDTO> proyectos = new ArrayList<>();
-            
-            // For each project ID, fetch the project details from MongoDB
+
+            // Por cada ID de proyecto, obtener los detalles del proyecto desde MongoDB
             for (String proyectoId : proyectoIds) {
                 try {
                     proyectoRepository.findById(proyectoId).ifPresent(proyecto -> {
@@ -110,13 +112,14 @@ public class ReporteIntegralEstudianteService {
                         proyectos.add(dto);
                     });
                 } catch (Exception e) {
-                    System.err.println("Error fetching project " + proyectoId + ": " + e.getMessage());
+                    System.err.println("Error obteniendo el proyecto " + proyectoId + ": " + e.getMessage());
                 }
             }
-            
+
             return proyectos;
         } catch (Exception e) {
-            System.err.println("Error getting projects for student " + estudianteId + ": " + e.getMessage());
+            System.err.println(
+                    "Error obteniendo los proyectos para el estudiante " + estudianteId + ": " + e.getMessage());
             e.printStackTrace();
             return new ArrayList<>();
         }

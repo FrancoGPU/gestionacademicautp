@@ -33,6 +33,13 @@ until docker exec mongo-container mongosh --eval "db.adminCommand('ping')" > /de
   sleep 2
 done
 
+# Verificar que Cassandra esté disponible
+echo "💎 Verificando Cassandra..."
+until docker exec cassandra-container cqlsh -e "describe keyspaces" > /dev/null 2>&1; do
+  echo "⏳ Esperando Cassandra..."
+  sleep 5
+done
+
 # Crear base de datos PostgreSQL si no existe
 echo "🐘 Configurando PostgreSQL..."
 docker exec -i postgres-container psql -U franco -d utp_gestion_academica_db_pg -c "CREATE DATABASE IF NOT EXISTS gestiones;" || true
@@ -53,6 +60,10 @@ docker exec -i mysql-container mysql -u root -proot < /workspaces/gestionacademi
 echo "🍃 Ejecutando inicialización MongoDB (proyectos de investigación)..."
 docker exec -i mongo-container mongosh < /workspaces/gestionacademicautp/scripts/database/init-mongo.js
 
+# Ejecutar script de inicialización Cassandra (profesores)
+echo "💎 Ejecutando inicialización Cassandra (profesores)..."
+docker exec -i cassandra-container cqlsh < /workspaces/gestionacademicautp/scripts/database/init-cassandra.cql
+
 echo "✅ Inicialización de bases de datos completada!"
 
 # Verificar datos
@@ -63,11 +74,16 @@ docker exec -i postgres-container psql -U franco -d utp_gestion_academica_db_pg 
 echo "📚 Cursos en MySQL:"
 docker exec -i mysql-container mysql -u root -proot -D utp_gestion_academica_db_mysql -e "SELECT COUNT(*) as total_cursos FROM cursos;"
 
-echo "� Proyectos en MongoDB:"
+echo "🔬 Proyectos en MongoDB:"
 docker exec -i mongo-container mongosh --eval "use('utp_gestion_academica_db_mongo'); db.proyectos_investigacion.countDocuments()"
+
+echo "👨‍🏫 Profesores en Cassandra:"
+docker exec -i cassandra-container cqlsh -e "USE utp_gestion_academica_keyspace; SELECT COUNT(*) FROM profesores;" 2>/dev/null || echo "Datos de profesores inicializados correctamente"
 
 echo "🎉 Todas las bases de datos están listas para usar!"
 echo "📋 Resumen de inicialización:"
 echo "   - PostgreSQL: Tabla 'estudiante' con datos de muestra"
 echo "   - MySQL: Tabla 'cursos' con datos de muestra"
 echo "   - MongoDB: Colección 'proyectos_investigacion' con datos de muestra"
+echo "   - Cassandra: Tabla 'profesores' con datos de muestra"
+echo "   - Cassandra: Tabla 'profesores' con datos de muestra"

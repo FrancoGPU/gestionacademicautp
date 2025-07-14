@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import profesorService from '../../services/profesorService';
 
 function CursoDetalle({ cursoId, onClose }) {
   const [curso, setCurso] = useState(null);
   const [loading, setLoading] = useState(true);
   const [estudiantes, setEstudiantes] = useState([]);
+  const [profesores, setProfesores] = useState([]);
 
   useEffect(() => {
     if (cursoId) {
@@ -25,6 +27,15 @@ function CursoDetalle({ cursoId, onClose }) {
             est.cursoIds && est.cursoIds.includes(cursoId)
           );
           setEstudiantes(estudiantesConCurso);
+        });
+
+      // Fetch professors assigned to this course
+      profesorService.getProfesoresByCurso(cursoId)
+        .then(profesores => {
+          setProfesores(profesores);
+        })
+        .catch(error => {
+          console.error('Error al cargar profesores:', error);
         });
     }
   }, [cursoId]);
@@ -85,6 +96,53 @@ function CursoDetalle({ cursoId, onClose }) {
               <div style={{ padding: '5px 0' }}>{curso.creditos}</div>
             </div>
           </div>
+        </div>
+
+        {/* Profesores Asignados */}
+        <div style={{ marginBottom: '20px' }}>
+          <h4 style={{ color: '#8e44ad', borderBottom: '2px solid #8e44ad', paddingBottom: '5px' }}>
+            👨‍🏫 Profesores Asignados ({profesores.length})
+          </h4>
+          {profesores.length > 0 ? (
+            <div style={{ backgroundColor: '#f3e5f5', padding: '15px', borderRadius: '5px' }}>
+              {profesores.map(prof => (
+                <div key={prof.id} style={{ 
+                  padding: '8px 0', 
+                  borderBottom: '1px solid #d1c4e9',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center'
+                }}>
+                  <div>
+                    <strong>{prof.nombre} {prof.apellido}</strong>
+                    <div style={{ fontSize: '12px', color: '#666', marginTop: '2px' }}>
+                      {prof.especialidad} • {prof.gradoAcademico}
+                    </div>
+                  </div>
+                  <span style={{ 
+                    fontSize: '12px', 
+                    color: '#666',
+                    backgroundColor: '#ffffff', 
+                    padding: '2px 8px', 
+                    borderRadius: '10px' 
+                  }}>
+                    {prof.correo}
+                  </span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div style={{ 
+              backgroundColor: '#fff3e0', 
+              padding: '15px', 
+              borderRadius: '5px', 
+              textAlign: 'center',
+              fontStyle: 'italic',
+              color: '#e65100'
+            }}>
+              No hay profesores asignados a este curso
+            </div>
+          )}
         </div>
 
         <div>
