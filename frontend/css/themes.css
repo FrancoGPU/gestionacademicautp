@@ -1,0 +1,255 @@
+/* Tema Claro (por defecto) */
+:root {
+    --primary-color: #2563eb;
+    --secondary-color: #64748b;
+    --success-color: #10b981;
+    --warning-color: #f59e0b;
+    --error-color: #ef4444;
+    --background-color: #ffffff;
+    --surface-color: #f8fafc;
+    --text-primary: #1e293b;
+    --text-secondary: #64748b;
+    --border-color: #e2e8f0;
+    --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+}
+
+/* Tema Oscuro */
+[data-theme="dark"] {
+    --primary-color: #3b82f6;
+    --secondary-color: #94a3b8;
+    --success-color: #34d399;
+    --warning-color: #fbbf24;
+    --error-color: #f87171;
+    --background-color: #0f172a;
+    --surface-color: #1e293b;
+    --text-primary: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --border-color: #334155;
+    --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px 0 rgba(0, 0, 0, 0.2);
+}
+
+/* Tema Glassmorfismo */
+[data-theme="glass"] {
+    --primary-color: #6366f1;
+    --secondary-color: #8b5cf6;
+    --success-color: #10b981;
+    --warning-color: #f59e0b;
+    --error-color: #ef4444;
+    --background-color: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --surface-color: rgba(255, 255, 255, 0.1);
+    --text-primary: #ffffff;
+    --text-secondary: rgba(255, 255, 255, 0.8);
+    --border-color: rgba(255, 255, 255, 0.2);
+    --shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+}
+
+[data-theme="glass"] body {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    backdrop-filter: blur(10px);
+}
+
+[data-theme="glass"] .card,
+[data-theme="glass"] .header,
+[data-theme="glass"] .sidebar,
+[data-theme="glass"] .table-container,
+[data-theme="glass"] .modal-content {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+[data-theme="glass"] .form-input,
+[data-theme="glass"] .form-select,
+[data-theme="glass"] .form-textarea {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+[data-theme="glass"] .form-input::placeholder,
+[data-theme="glass"] .form-textarea::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+/* Tema Neumorfismo */
+[data-theme="neomorphism"] {
+    --primary-color: #4f46e5;
+    --secondary-color: #6b7280;
+    --success-color: #059669;
+    --warning-color: #d97706;
+    --error-color: #dc2626;
+    --background-color: #e5e7eb;
+    --surface-color: #e5e7eb;
+    --text-primary: #1f2937;
+    --text-secondary: #6b7280;
+    --border-color: transparent;
+    --shadow-light: 8px 8px 16px #d1d5db, -8px -8px 16px #ffffff;
+    --shadow-inset: inset 8px 8px 16px #d1d5db, inset -8px -8px 16px #ffffff;
+}
+
+[data-theme="neomorphism"] .card {
+    box-shadow: var(--shadow-light);
+    border: none;
+    background: var(--surface-color);
+}
+
+[data-theme="neomorphism"] .card:hover {
+    box-shadow: 12px 12px 24px #d1d5db, -12px -12px 24px #ffffff;
+}
+
+[data-theme="neomorphism"] .btn {
+    box-shadow: var(--shadow-light);
+    border: none;
+    background: var(--surface-color);
+    color: var(--text-primary);
+}
+
+[data-theme="neomorphism"] .btn:hover {
+    box-shadow: var(--shadow-inset);
+    transform: none;
+}
+
+[data-theme="neomorphism"] .btn-primary {
+    background: linear-gradient(145deg, #5855eb, #4a47d9);
+    color: white;
+}
+
+[data-theme="neomorphism"] .form-input,
+[data-theme="neomorphism"] .form-select,
+[data-theme="neomorphism"] .form-textarea {
+    box-shadow: var(--shadow-inset);
+    border: none;
+    background: var(--surface-color);
+}
+
+[data-theme="neomorphism"] .form-input:focus,
+[data-theme="neomorphism"] .form-select:focus,
+[data-theme="neomorphism"] .form-textarea:focus {
+    box-shadow: var(--shadow-inset), 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+[data-theme="neomorphism"] .header,
+[data-theme="neomorphism"] .sidebar {
+    box-shadow: var(--shadow-light);
+    border: none;
+}
+
+[data-theme="neomorphism"] .table-container {
+    box-shadow: var(--shadow-light);
+    border: none;
+}
+
+[data-theme="neomorphism"] .nav-item {
+    border-radius: 1rem;
+    margin: 0.5rem 1rem;
+    border-left: none;
+}
+
+[data-theme="neomorphism"] .nav-item:hover {
+    box-shadow: var(--shadow-inset);
+    background-color: var(--surface-color);
+}
+
+[data-theme="neomorphism"] .nav-item.active {
+    box-shadow: var(--shadow-inset);
+    background-color: var(--surface-color);
+    color: var(--primary-color);
+}
+
+[data-theme="neomorphism"] .modal-content {
+    box-shadow: 20px 20px 40px #d1d5db, -20px -20px 40px #ffffff;
+    border: none;
+}
+
+/* Transiciones suaves entre temas */
+* {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Animaciones para cambio de tema */
+@keyframes themeTransition {
+    0% {
+        opacity: 0.8;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+[data-theme] {
+    animation: themeTransition 0.3s ease;
+}
+
+/* Mejoras específicas para cada tema */
+
+/* Tema Oscuro - Mejoras adicionales */
+[data-theme="dark"] .data-table tbody tr:hover {
+    background-color: rgba(59, 130, 246, 0.1);
+}
+
+[data-theme="dark"] .status-active {
+    background-color: rgba(52, 211, 153, 0.2);
+}
+
+[data-theme="dark"] .status-inactive {
+    background-color: rgba(248, 113, 113, 0.2);
+}
+
+[data-theme="dark"] .status-pending {
+    background-color: rgba(251, 191, 36, 0.2);
+}
+
+/* Tema Glassmorfismo - Efectos adicionales */
+[data-theme="glass"] .btn {
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+}
+
+[data-theme="glass"] .btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+}
+
+[data-theme="glass"] .nav-item:hover,
+[data-theme="glass"] .nav-item.active {
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+}
+
+[data-theme="glass"] .data-table th {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+}
+
+[data-theme="glass"] .data-table tbody tr:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* Scrollbar personalizado para cada tema */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--surface-color);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--text-secondary);
+}
+
+[data-theme="glass"] ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+[data-theme="glass"] ::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+}

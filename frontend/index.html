@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Gestión Académica UTP</title>
+    <link rel="icon" href="public/favicon.ico">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/themes.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <img src="public/logo192.png" alt="UTP Logo" class="logo-img">
+                <h1>Sistema de Gestión Académica UTP</h1>
+            </div>
+            <div class="header-controls">
+                <div class="theme-selector">
+                    <select id="themeSelect">
+                        <option value="light">Claro</option>
+                        <option value="dark">Oscuro</option>
+                        <option value="glass">Glassmorfismo</option>
+                        <option value="neomorphism">Neumorfismo</option>
+                    </select>
+                </div>
+                <div class="user-menu">
+                    <i class="fas fa-user"></i>
+                    <span>Usuario</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="sidebar">
+        <ul class="nav-menu">
+            <li class="nav-item active" data-section="dashboard">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Dashboard</span>
+            </li>
+            <li class="nav-item" data-section="estudiantes">
+                <i class="fas fa-user-graduate"></i>
+                <span>Estudiantes</span>
+            </li>
+            <li class="nav-item" data-section="profesores">
+                <i class="fas fa-chalkboard-teacher"></i>
+                <span>Profesores</span>
+            </li>
+            <li class="nav-item" data-section="cursos">
+                <i class="fas fa-book"></i>
+                <span>Cursos</span>
+            </li>
+            <li class="nav-item" data-section="proyectos">
+                <i class="fas fa-project-diagram"></i>
+                <span>Proyectos</span>
+            </li>
+            <li class="nav-item" data-section="reportes">
+                <i class="fas fa-chart-bar"></i>
+                <span>Reportes</span>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Dashboard Section -->
+        <section id="dashboard" class="content-section active">
+            <div class="section-header">
+                <h2>Dashboard</h2>
+                <p>Resumen general del sistema académico</p>
+            </div>
+            <div class="dashboard-grid">
+                <div class="card stat-card">
+                    <div class="card-icon">
+                        <i class="fas fa-user-graduate"></i>
+                    </div>
+                    <div class="card-content">
+                        <h3 id="totalEstudiantes">0</h3>
+                        <p>Total Estudiantes</p>
+                    </div>
+                </div>
+                <div class="card stat-card">
+                    <div class="card-icon">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                    </div>
+                    <div class="card-content">
+                        <h3 id="totalProfesores">0</h3>
+                        <p>Total Profesores</p>
+                    </div>
+                </div>
+                <div class="card stat-card">
+                    <div class="card-icon">
+                        <i class="fas fa-book"></i>
+                    </div>
+                    <div class="card-content">
+                        <h3 id="totalCursos">0</h3>
+                        <p>Total Cursos</p>
+                    </div>
+                </div>
+                <div class="card stat-card">
+                    <div class="card-icon">
+                        <i class="fas fa-project-diagram"></i>
+                    </div>
+                    <div class="card-content">
+                        <h3 id="totalProyectos">0</h3>
+                        <p>Total Proyectos</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Estudiantes Section -->
+        <section id="estudiantes" class="content-section">
+            <div class="section-header">
+                <h2>Gestión de Estudiantes</h2>
+                <button class="btn btn-primary" onclick="showEstudianteForm()">
+                    <i class="fas fa-plus"></i> Nuevo Estudiante
+                </button>
+            </div>
+            <div class="table-container">
+                <table id="estudiantesTable" class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre Completo</th>
+                            <th>Correo</th>
+                            <th>Fecha Nacimiento</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Profesores Section -->
+        <section id="profesores" class="content-section">
+            <div class="section-header">
+                <h2>Gestión de Profesores</h2>
+                <button class="btn btn-primary" onclick="showProfesorForm()">
+                    <i class="fas fa-plus"></i> Nuevo Profesor
+                </button>
+            </div>
+            <div class="table-container">
+                <table id="profesoresTable" class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre Completo</th>
+                            <th>Correo</th>
+                            <th>Especialidad</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Cursos Section -->
+        <section id="cursos" class="content-section">
+            <div class="section-header">
+                <h2>Gestión de Cursos</h2>
+                <button class="btn btn-primary" onclick="showCursoForm()">
+                    <i class="fas fa-plus"></i> Nuevo Curso
+                </button>
+            </div>
+            <div class="table-container">
+                <table id="cursosTable" class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Código</th>
+                            <th>Créditos</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Proyectos Section -->
+        <section id="proyectos" class="content-section">
+            <div class="section-header">
+                <h2>Gestión de Proyectos</h2>
+                <button class="btn btn-primary" onclick="showProyectoForm()">
+                    <i class="fas fa-plus"></i> Nuevo Proyecto
+                </button>
+            </div>
+            <div class="table-container">
+                <table id="proyectosTable" class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Título</th>
+                            <th>Resumen</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Reportes Section -->
+        <section id="reportes" class="content-section">
+            <div class="section-header">
+                <h2>Reportes</h2>
+                <p>Generar reportes y estadísticas del sistema</p>
+            </div>
+            <div class="reports-grid">
+                <div class="card report-card">
+                    <h3>Reporte de Estudiantes</h3>
+                    <p>Generar reporte detallado de estudiantes</p>
+                    <button class="btn btn-secondary" onclick="generateEstudiantesReport()">
+                        <i class="fas fa-download"></i> Generar
+                    </button>
+                </div>
+                <div class="card report-card">
+                    <h3>Reporte de Profesores</h3>
+                    <p>Generar reporte detallado de profesores</p>
+                    <button class="btn btn-secondary" onclick="generateProfesoresReport()">
+                        <i class="fas fa-download"></i> Generar
+                    </button>
+                </div>
+                <div class="card report-card">
+                    <h3>Reporte de Cursos</h3>
+                    <p>Generar reporte detallado de cursos</p>
+                    <button class="btn btn-secondary" onclick="generateCursosReport()">
+                        <i class="fas fa-download"></i> Generar
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal for Forms -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Formulario</h3>
+                <span class="close" onclick="closeModal()">&times;</span>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Dynamic form content will be inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div id="loading" class="loading">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/utils.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/themes.js"></script>
+    <script src="js/navigation.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script src="js/estudiantes.js"></script>
+    <script src="js/profesores.js"></script>
+    <script src="js/cursos.js"></script>
+    <script src="js/proyectos.js"></script>
+    <script src="js/reportes.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

@@ -1,23 +1,190 @@
-# Getting Started with Create React App
+# Sistema de Gestión Académica UTP - Frontend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Este es el frontend del Sistema de Gestión Académica de la Universidad Tecnológica del Perú, desarrollado con **HTML5, CSS3 y JavaScript vanilla** (sin frameworks como React).
 
-## Available Scripts
+## 🚀 Características
 
-In the project directory, you can run:
+- **Interfaz moderna y responsiva** - Funciona en desktop, tablet y móvil
+- **Múltiples temas** - Claro, Oscuro, Glassmorfismo y Neumorfismo
+- **Sistema de navegación SPA** - Experiencia de aplicación de una sola página
+- **Gestión completa** - Estudiantes, Profesores, Cursos, Proyectos y Reportes
+- **Exportación de datos** - CSV y JSON
+- **Búsqueda y filtrado** - En tiempo real para todas las secciones
+- **Notificaciones** - Sistema de notificaciones en tiempo real
+- **Atajos de teclado** - Navegación rápida con teclado
 
-### `npm start`
+## 📁 Estructura del Proyecto
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+```
+frontend/
+├── index.html              # Página principal
+├── css/
+│   ├── styles.css          # Estilos principales
+│   └── themes.css          # Estilos de temas
+├── js/
+│   ├── app.js             # Aplicación principal
+│   ├── api.js             # Servicios API
+│   ├── utils.js           # Utilidades
+│   ├── themes.js          # Gestor de temas
+│   ├── navigation.js      # Navegación
+│   ├── dashboard.js       # Dashboard
+│   ├── estudiantes.js     # Gestión de estudiantes
+│   ├── profesores.js      # Gestión de profesores
+│   ├── cursos.js          # Gestión de cursos
+│   ├── proyectos.js       # Gestión de proyectos
+│   └── reportes.js        # Sistema de reportes
+└── public/                # Archivos estáticos
+    ├── favicon.ico
+    ├── logo192.png
+    └── ...
+```
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## 🎨 Temas Disponibles
 
-### `npm test`
+1. **Claro** - Tema por defecto con colores claros
+2. **Oscuro** - Tema oscuro para mejor visualización nocturna
+3. **Glassmorfismo** - Efecto de cristal con transparencias
+4. **Neumorfismo** - Diseño con efectos de profundidad
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## ⚡ Funcionalidades
+
+### Dashboard
+- Estadísticas en tiempo real
+- Actividad reciente
+- Contadores animados
+- Widgets personalizables
+
+### Gestión de Estudiantes
+- Lista completa con búsqueda y filtros
+- Formularios de creación y edición
+- Exportación de datos
+- Gestión de estados
+
+### Gestión de Profesores
+- Administración de profesores
+- Filtrado por especialidad
+- Seguimiento de experiencia
+
+### Gestión de Cursos
+- Catálogo de cursos
+- Asignación de profesores
+- Control de créditos
+
+### Gestión de Proyectos
+- Seguimiento de proyectos estudiantiles
+- Control de estados
+- Asignación a estudiantes
+
+### Sistema de Reportes
+- Reportes automáticos
+- Exportación CSV/JSON
+- Estadísticas detalladas
+- Reportes personalizados
+
+## 🎯 Atajos de Teclado
+
+- `Alt + 1-6` - Navegación entre secciones
+- `Ctrl + Shift + T` - Cambiar tema
+- `F5` - Actualizar datos
+- `Esc` - Cerrar modal
+- `Ctrl + /` - Mostrar ayuda
+
+## 🔧 Instalación y Uso
+
+1. **Servidor Web**: El frontend requiere un servidor web para funcionar correctamente:
+
+   ```bash
+   # Con Python 3
+   python -m http.server 8000
+   
+   # Con Node.js
+   npx serve .
+   
+   # Con PHP
+   php -S localhost:8000
+   ```
+
+2. **Acceder**: Abrir `http://localhost:8000` en el navegador
+
+3. **Backend**: Asegúrate de que el backend esté ejecutándose en `http://localhost:8080`
+
+## 🌐 APIs Requeridas
+
+El frontend espera que el backend proporcione las siguientes APIs:
+
+```
+GET    /api/estudiantes
+POST   /api/estudiantes
+PUT    /api/estudiantes/{id}
+DELETE /api/estudiantes/{id}
+
+GET    /api/profesores
+POST   /api/profesores
+PUT    /api/profesores/{id}
+DELETE /api/profesores/{id}
+
+GET    /api/cursos
+POST   /api/cursos
+PUT    /api/cursos/{id}
+DELETE /api/cursos/{id}
+
+GET    /api/proyectos
+POST   /api/proyectos
+PUT    /api/proyectos/{id}
+DELETE /api/proyectos/{id}
+
+GET    /api/reportes/dashboard
+GET    /api/reportes/estudiantes
+GET    /api/reportes/profesores
+GET    /api/reportes/cursos
+```
+
+## 🔍 Modo de Desarrollo
+
+Para desarrollo local, el sistema incluye datos mock que se activan automáticamente cuando se ejecuta en `localhost`. Esto permite probar la funcionalidad sin necesidad de un backend completo.
+
+## 📱 Compatibilidad
+
+- **Navegadores**: Chrome 60+, Firefox 55+, Safari 12+, Edge 79+
+- **Dispositivos**: Desktop, Tablet, Móvil
+- **Resoluciones**: Desde 320px hasta 4K
+
+## 🛠️ Personalización
+
+### Cambiar Colores del Tema
+Edita las variables CSS en `css/styles.css`:
+
+```css
+:root {
+    --primary-color: #2563eb;
+    --secondary-color: #64748b;
+    /* ... más variables */
+}
+```
+
+### Agregar Nuevas Secciones
+1. Crear archivo JS en `js/`
+2. Agregar sección HTML en `index.html`
+3. Registrar en el sistema de navegación
+
+### Personalizar Temas
+Edita `css/themes.css` para modificar o agregar nuevos temas.
+
+## 🚧 Estado del Proyecto
+
+- ✅ Interfaz principal
+- ✅ Sistema de navegación
+- ✅ Gestión de temas
+- ✅ CRUD para todas las entidades
+- ✅ Sistema de reportes
+- ✅ Exportación de datos
+- ✅ Búsqueda y filtros
+- ✅ Notificaciones
+- ✅ Diseño responsivo
+
+## 📄 Licencia
+
+Uso académico - Universidad Tecnológica del Perú
 
 ### `npm run build`
 
