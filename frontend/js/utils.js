@@ -234,8 +234,16 @@ class Utils {
 
     // Exportar datos a CSV
     static exportToCSV(data, filename) {
+        console.log('Exportando CSV:', { dataLength: data.length, filename, firstRow: data[0] });
+        
         const csv = this.arrayToCSV(data);
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        console.log('CSV generado:', csv.substring(0, 200) + '...');
+        
+        // Agregar BOM para UTF-8
+        const BOM = '\uFEFF';
+        const csvWithBOM = BOM + csv;
+        
+        const blob = new Blob([csvWithBOM], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement('a');
         
         if (link.download !== undefined) {
@@ -246,28 +254,61 @@ class Utils {
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
+            
+            console.log('Descarga iniciada:', filename);
+            
+            // Limpiar URL después de un tiempo
+            setTimeout(() => {
+                URL.revokeObjectURL(url);
+            }, 1000);
+        } else {
+            console.error('El navegador no soporta descarga de archivos');
         }
     }
 
     // Convertir array a CSV
     static arrayToCSV(data) {
-        if (!data || data.length === 0) return '';
+        if (!data || data.length === 0) {
+            console.warn('No hay datos para exportar');
+            return '';
+        }
+
+        console.log('Convirtiendo a CSV:', data.length, 'filas');
 
         const headers = Object.keys(data[0]);
+        console.log('Headers encontrados:', headers);
+        
         const csvContent = [
             headers.join(','),
-            ...data.map(row => 
-                headers.map(header => {
-                    const value = row[header];
-                    // Escapar comillas y envolver en comillas si contiene comas
-                    if (typeof value === 'string' && (value.includes(',') || value.includes('"'))) {
-                        return `"${value.replace(/"/g, '""')}"`;
+            ...data.map((row, index) => {
+                const csvRow = headers.map(header => {
+                    let value = row[header];
+                    
+                    // Manejar valores undefined, null o vacíos
+                    if (value === undefined || value === null) {
+                        value = '';
                     }
+                    
+                    // Convertir a string
+                    value = String(value);
+                    
+                    // Escapar comillas y envolver en comillas si contiene comas, saltos de línea o comillas
+                    if (value.includes(',') || value.includes('"') || value.includes('\n') || value.includes('\r')) {
+                        value = `"${value.replace(/"/g, '""')}"`;
+                    }
+                    
                     return value;
-                }).join(',')
-            )
+                }).join(',');
+                
+                if (index < 3) {
+                    console.log(`Fila ${index}:`, csvRow);
+                }
+                
+                return csvRow;
+            })
         ].join('\n');
 
+        console.log('CSV content length:', csvContent.length);
         return csvContent;
     }
 

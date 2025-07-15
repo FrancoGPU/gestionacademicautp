@@ -1,23 +1,80 @@
-# Sistema de Gestión Académica UTP
+# 🎓 Sistema de Gestión Académica UTP
 
-Sistema integral de gestión académica desarrollado con Spring Boot y React, que permite administrar estudiantes, cursos y proyectos de investigación con múltiples fuentes de datos.
+Sistema integral de gestión académica desarrollado con **Spring Boot** y **JavaScript**, que permite administrar estudiantes, profesores, cursos y proyectos académicos con arquitectura **multi-base de datos**.
 
-## 🚀 **Inicio Rápido**
+## 🚀 **Inicio Súper Rápido**
 
-### GitHub Codespaces (Recomendado)
+### Una sola línea para iniciar todo:
+```bash
+./run.sh start
+```
+**¡Y listo!** En menos de 2 minutos tendrás todo funcionando.
+
+### URLs disponibles después del inicio:
+- 🌐 **Frontend**: http://localhost:3000
+- 🔧 **Backend API**: http://localhost:8080
+- 📊 **Dashboard**: http://localhost:3000#dashboard
+
+## 📋 **¿Qué incluye este comando?**
+
+✅ Verificación automática de dependencias  
+✅ Inicio de 4 bases de datos (PostgreSQL, MySQL, Cassandra, MongoDB)  
+✅ Carga automática de datos de prueba  
+✅ Compilación y inicio del backend Spring Boot  
+✅ Inicio del servidor frontend  
+✅ Verificación de conectividad entre servicios  
+
+## 🏗️ **Arquitectura del Sistema**
+
+### Backend (Spring Boot 3.5.0)
+- **PostgreSQL**: Gestión de estudiantes
+- **MySQL**: Gestión de cursos  
+- **Cassandra**: Gestión de profesores
+- **MongoDB**: Gestión de proyectos
+
+### Frontend (JavaScript Vanilla)
+- Interfaz web moderna y responsiva
+- Sistema de reportes con exportación CSV
+- Dashboard en tiempo real
+
+## 🎯 **Funcionalidades Principales**
+
+| Módulo | Funcionalidades |
+|--------|----------------|
+| 👥 **Estudiantes** | CRUD, asignación de cursos/proyectos, búsqueda, reportes |
+| 👨‍🏫 **Profesores** | CRUD, asignación de cursos, especialidades, reportes |
+| 📚 **Cursos** | CRUD, gestión de créditos, asignación de profesores |
+| 🚀 **Proyectos** | CRUD, asignación a estudiantes, gestión de fechas |
+| 📈 **Dashboard** | Estadísticas en tiempo real, reportes exportables |
+
+## 🔧 **Comandos Disponibles**
+
+```bash
+# Inicio y desarrollo
+./run.sh start      # Inicio completo del sistema
+./run.sh quick      # Inicio rápido (DBs ya iniciadas)
+./run.sh backend    # Solo backend en puerto 8080
+./run.sh frontend   # Solo frontend en puerto 3000
+
+# Bases de datos
+./run.sh db         # Solo iniciar bases de datos
+./run.sh stop       # Detener bases de datos
+
+# Mantenimiento
+./run.sh status     # Ver estado de todos los servicios
+./run.sh logs       # Ver logs del backend
+./run.sh clean      # Limpiar builds y logs
+./run.sh help       # Ver ayuda completa
+```
+
+### GitHub Codespaces (Alternativa en la nube)
 **¡Configuración automática en menos de 5 minutos!**
 
 1. Ve al repositorio en GitHub
 2. Click **"Code"** → **"Codespaces"** → **"Create codespace"**
-3. **¡Listo!** El sistema se inicializa automáticamente con todas las bases de datos y datos de prueba
+3. **¡Listo!** El sistema se inicializa automáticamente
 
-📖 [Ver guía detallada de Codespaces](CODESPACE.md)
-
-### Instalación Local
-```bash
-git clone [repository-url]
-cd gestionacademicautp
-./run.sh start
+📖 [Ver guía detallada de Codespaces](docs/CODESPACE.md)
 ```
 
 ## 📁 Estructura del Proyecto
@@ -42,8 +99,9 @@ gestionacademicautp/
 ### Backend (Spring Boot)
 - **PostgreSQL**: Gestión de estudiantes y relaciones
 - **MySQL**: Gestión de cursos
+- **Cassandra**: Gestión de profesores (con UUIDs)
 - **MongoDB**: Gestión de proyectos de investigación
-- **Redis**: Cache para reportes (opcional)
+- **Redis**: Cache y sesiones para optimización
 
 ### Frontend (React)
 - Interfaz moderna y responsiva

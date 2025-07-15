@@ -60,29 +60,39 @@ class ReportesManager {
             Utils.showLoading();
             Utils.showNotification('Generando reporte de estudiantes...', 'info');
             
-            const data = await API.estudiantes.getAll();
-            const reportData = data.map(estudiante => ({
+            const [estudiantes, cursos, proyectos] = await Promise.all([
+                API.estudiantes.getAll(),
+                API.cursos.getAll(),
+                API.proyectos.getAll()
+            ]);
+            
+            const reportData = estudiantes.map(estudiante => ({
                 ID: estudiante.id,
-                Nombre: estudiante.nombre,
-                Email: estudiante.email,
-                Carrera: estudiante.carrera,
-                Estado: estudiante.estado,
-                'Fecha de Ingreso': Utils.formatDateOnly(estudiante.fechaIngreso)
+                'Nombre Completo': `${estudiante.nombre} ${estudiante.apellido || ''}`,
+                'Correo Electrónico': estudiante.correo,
+                'Fecha de Nacimiento': Utils.formatDateOnly(estudiante.fecha_nacimiento),
+                'Cursos Asignados': this.getCursosNames(estudiante.cursoIds, cursos),
+                'Proyectos Asignados': this.getProyectosNames(estudiante.proyectoIds, proyectos),
+                'Total Cursos': estudiante.cursoIds ? estudiante.cursoIds.length : 0,
+                'Total Proyectos': estudiante.proyectoIds ? estudiante.proyectoIds.length : 0
             }));
 
             // Generar estadísticas adicionales
-            const stats = this.generateEstudiantesStats(data);
+            const stats = this.generateEstudiantesStats(estudiantes, cursos);
             
             // Crear reporte completo
             const fullReport = [
-                { Tipo: 'ESTADÍSTICAS' },
+                { Tipo: 'ESTADÍSTICAS GENERALES' },
                 { 'Total de Estudiantes': stats.total },
-                { 'Estudiantes Activos': stats.activos },
-                { 'Estudiantes Inactivos': stats.inactivos },
-                { 'Carrera más Popular': stats.carreraMasPopular },
+                { 'Estudiantes con Cursos': stats.conCursos },
+                { 'Estudiantes sin Cursos': stats.sinCursos },
+                { 'Estudiantes con Proyectos': stats.conProyectos },
+                { 'Promedio de Cursos por Estudiante': stats.promedioCursos },
+                { 'Promedio de Proyectos por Estudiante': stats.promedioProyectos },
+                { 'Curso más Popular': stats.cursoMasPopular },
                 { 'Fecha de Generación': Utils.formatDate(new Date()) },
                 {},
-                { Tipo: 'DATOS DETALLADOS' },
+                { Tipo: 'DATOS DETALLADOS DE ESTUDIANTES' },
                 ...reportData
             ];
 
@@ -97,25 +107,48 @@ class ReportesManager {
         }
     }
 
-    generateEstudiantesStats(data) {
-        const total = data.length;
-        const activos = data.filter(e => e.estado === 'Activo').length;
-        const inactivos = data.filter(e => e.estado === 'Inactivo').length;
+    generateEstudiantesStats(estudiantes, cursos) {
+        const total = estudiantes.length;
+        const conCursos = estudiantes.filter(e => e.cursoIds && e.cursoIds.length > 0).length;
+        const sinCursos = total - conCursos;
+        const conProyectos = estudiantes.filter(e => e.proyectoIds && e.proyectoIds.length > 0).length;
         
-        // Encontrar carrera más popular
-        const carreras = {};
-        data.forEach(e => {
-            carreras[e.carrera] = (carreras[e.carrera] || 0) + 1;
+        // Calcular promedio de cursos por estudiante
+        const totalCursos = estudiantes.reduce((sum, e) => sum + (e.cursoIds ? e.cursoIds.length : 0), 0);
+        const promedioCursos = total > 0 ? (totalCursos / total).toFixed(2) : 0;
+        
+        // Calcular promedio de proyectos por estudiante
+        const totalProyectos = estudiantes.reduce((sum, e) => sum + (e.proyectoIds ? e.proyectoIds.length : 0), 0);
+        const promedioProyectos = total > 0 ? (totalProyectos / total).toFixed(2) : 0;
+        
+        // Encontrar curso más popular
+        const cursosCount = {};
+        estudiantes.forEach(e => {
+            if (e.cursoIds) {
+                e.cursoIds.forEach(cursoId => {
+                    cursosCount[cursoId] = (cursosCount[cursoId] || 0) + 1;
+                });
+            }
         });
         
-        const carreraMasPopular = Object.keys(carreras).reduce((a, b) => 
-            carreras[a] > carreras[b] ? a : b, '');
+        let cursoMasPopular = 'Ninguno';
+        if (Object.keys(cursosCount).length > 0) {
+            const cursoIdMasPopular = Object.keys(cursosCount).reduce((a, b) => 
+                cursosCount[a] > cursosCount[b] ? a : b);
+            const curso = cursos.find(c => c.id == cursoIdMasPopular);
+            cursoMasPopular = curso ? 
+                `${curso.codigo} - ${curso.nombre} (${cursosCount[cursoIdMasPopular]} estudiantes)` : 
+                `Curso ID: ${cursoIdMasPopular} (${cursosCount[cursoIdMasPopular]} estudiantes)`;
+        }
 
         return {
             total,
-            activos,
-            inactivos,
-            carreraMasPopular: `${carreraMasPopular} (${carreras[carreraMasPopular]} estudiantes)`
+            conCursos,
+            sinCursos,
+            conProyectos,
+            promedioCursos,
+            promedioProyectos,
+            cursoMasPopular
         };
     }
 
@@ -124,27 +157,39 @@ class ReportesManager {
             Utils.showLoading();
             Utils.showNotification('Generando reporte de profesores...', 'info');
             
-            const data = await API.profesores.getAll();
-            const reportData = data.map(profesor => ({
+            const [profesores, cursos] = await Promise.all([
+                API.profesores.getAll(),
+                API.cursos.getAll()
+            ]);
+            
+            const reportData = profesores.map(profesor => ({
                 ID: profesor.id,
-                Nombre: profesor.nombre,
-                Email: profesor.email,
-                Especialidad: profesor.especialidad,
-                Estado: profesor.estado,
-                Experiencia: profesor.experiencia || 'No especificado'
+                'Nombre Completo': `${profesor.nombre} ${profesor.apellido || ''}`,
+                'Correo Electrónico': profesor.correo,
+                'Especialidad': profesor.especialidad,
+                'Grado Académico': profesor.gradoAcademico,
+                'Años de Experiencia': profesor.anosExperiencia,
+                'Teléfono': profesor.telefono || 'No especificado',
+                'Estado': profesor.activo ? 'Activo' : 'Inactivo',
+                'Cursos Asignados': this.getCursosNames(profesor.cursoIds, cursos),
+                'Total Cursos': profesor.cursoIds ? profesor.cursoIds.length : 0
             }));
 
-            const stats = this.generateProfesoresStats(data);
+            const stats = this.generateProfesoresStats(profesores);
             
             const fullReport = [
-                { Tipo: 'ESTADÍSTICAS' },
+                { Tipo: 'ESTADÍSTICAS GENERALES' },
                 { 'Total de Profesores': stats.total },
                 { 'Profesores Activos': stats.activos },
                 { 'Profesores Inactivos': stats.inactivos },
+                { 'Profesores con Cursos': stats.conCursos },
+                { 'Profesores sin Cursos': stats.sinCursos },
                 { 'Especialidad más Común': stats.especialidadMasComun },
+                { 'Grado Académico más Común': stats.gradoMasComun },
+                { 'Promedio de Experiencia': stats.promedioExperiencia },
                 { 'Fecha de Generación': Utils.formatDate(new Date()) },
                 {},
-                { Tipo: 'DATOS DETALLADOS' },
+                { Tipo: 'DATOS DETALLADOS DE PROFESORES' },
                 ...reportData
             ];
 
@@ -159,24 +204,50 @@ class ReportesManager {
         }
     }
 
-    generateProfesoresStats(data) {
-        const total = data.length;
-        const activos = data.filter(p => p.estado === 'Activo').length;
-        const inactivos = data.filter(p => p.estado === 'Inactivo').length;
+    generateProfesoresStats(profesores) {
+        const total = profesores.length;
+        const activos = profesores.filter(p => p.activo).length;
+        const inactivos = total - activos;
+        const conCursos = profesores.filter(p => p.cursoIds && p.cursoIds.length > 0).length;
+        const sinCursos = total - conCursos;
         
+        // Especialidad más común
         const especialidades = {};
-        data.forEach(p => {
-            especialidades[p.especialidad] = (especialidades[p.especialidad] || 0) + 1;
+        profesores.forEach(p => {
+            if (p.especialidad) {
+                especialidades[p.especialidad] = (especialidades[p.especialidad] || 0) + 1;
+            }
         });
         
-        const especialidadMasComun = Object.keys(especialidades).reduce((a, b) => 
-            especialidades[a] > especialidades[b] ? a : b, '');
+        const especialidadMasComun = Object.keys(especialidades).length > 0 ?
+            Object.keys(especialidades).reduce((a, b) => 
+                especialidades[a] > especialidades[b] ? a : b) : 'No especificado';
+        
+        // Grado académico más común
+        const grados = {};
+        profesores.forEach(p => {
+            if (p.gradoAcademico) {
+                grados[p.gradoAcademico] = (grados[p.gradoAcademico] || 0) + 1;
+            }
+        });
+        
+        const gradoMasComun = Object.keys(grados).length > 0 ?
+            Object.keys(grados).reduce((a, b) => 
+                grados[a] > grados[b] ? a : b) : 'No especificado';
+        
+        // Promedio de experiencia
+        const totalExperiencia = profesores.reduce((sum, p) => sum + (p.anosExperiencia || 0), 0);
+        const promedioExperiencia = total > 0 ? (totalExperiencia / total).toFixed(1) + ' años' : '0 años';
 
         return {
             total,
             activos,
             inactivos,
-            especialidadMasComun: `${especialidadMasComun} (${especialidades[especialidadMasComun]} profesores)`
+            conCursos,
+            sinCursos,
+            especialidadMasComun: `${especialidadMasComun} (${especialidades[especialidadMasComun] || 0} profesores)`,
+            gradoMasComun: `${gradoMasComun} (${grados[gradoMasComun] || 0} profesores)`,
+            promedioExperiencia
         };
     }
 
@@ -185,29 +256,52 @@ class ReportesManager {
             Utils.showLoading();
             Utils.showNotification('Generando reporte de cursos...', 'info');
             
-            const data = await API.cursos.getAll();
-            const reportData = data.map(curso => ({
-                ID: curso.id,
-                Nombre: curso.nombre,
-                Código: curso.codigo,
-                Créditos: curso.creditos,
-                Profesor: curso.profesor,
-                Estado: curso.estado,
-                Semestre: curso.semestre || 'No especificado'
-            }));
+            const [cursos, estudiantes, profesores] = await Promise.all([
+                API.cursos.getAll(),
+                API.estudiantes.getAll(),
+                API.profesores.getAll()
+            ]);
+            
+            const reportData = cursos.map(curso => {
+                // Contar estudiantes asignados
+                const estudiantesAsignados = estudiantes.filter(e => 
+                    e.cursoIds && e.cursoIds.includes(curso.id)
+                ).length;
+                
+                // Encontrar profesor asignado
+                const profesor = profesores.find(p => 
+                    p.cursoIds && p.cursoIds.includes(curso.id)
+                );
+                
+                return {
+                    ID: curso.id,
+                    'Nombre del Curso': curso.nombre,
+                    'Código': curso.codigo,
+                    'Créditos': curso.creditos,
+                    'Profesor Asignado': profesor ? 
+                        `${profesor.nombre} ${profesor.apellido || ''}` : 
+                        'Sin asignar',
+                    'Estudiantes Inscritos': estudiantesAsignados,
+                    'Estado': estudiantesAsignados > 0 ? 'Activo' : 'Sin estudiantes'
+                };
+            });
 
-            const stats = this.generateCursosStats(data);
+            const stats = this.generateCursosStats(cursos, estudiantes, profesores);
             
             const fullReport = [
-                { Tipo: 'ESTADÍSTICAS' },
+                { Tipo: 'ESTADÍSTICAS GENERALES' },
                 { 'Total de Cursos': stats.total },
-                { 'Cursos Activos': stats.activos },
-                { 'Cursos Inactivos': stats.inactivos },
+                { 'Cursos con Estudiantes': stats.conEstudiantes },
+                { 'Cursos sin Estudiantes': stats.sinEstudiantes },
+                { 'Cursos con Profesor': stats.conProfesor },
+                { 'Cursos sin Profesor': stats.sinProfesor },
                 { 'Total de Créditos': stats.totalCreditos },
-                { 'Promedio de Créditos': stats.promedioCreditos },
+                { 'Promedio de Créditos por Curso': stats.promedioCreditos },
+                { 'Promedio de Estudiantes por Curso': stats.promedioEstudiantes },
+                { 'Curso con Más Estudiantes': stats.cursoMasPopular },
                 { 'Fecha de Generación': Utils.formatDate(new Date()) },
                 {},
-                { Tipo: 'DATOS DETALLADOS' },
+                { Tipo: 'DATOS DETALLADOS DE CURSOS' },
                 ...reportData
             ];
 
@@ -222,19 +316,59 @@ class ReportesManager {
         }
     }
 
-    generateCursosStats(data) {
-        const total = data.length;
-        const activos = data.filter(c => c.estado === 'Activo').length;
-        const inactivos = data.filter(c => c.estado === 'Inactivo').length;
-        const totalCreditos = data.reduce((sum, c) => sum + (c.creditos || 0), 0);
-        const promedioCreditos = total > 0 ? (totalCreditos / total).toFixed(2) : 0;
+    generateCursosStats(cursos, estudiantes, profesores) {
+        const total = cursos.length;
+        
+        // Contar cursos con y sin estudiantes
+        const cursosConEstudiantes = cursos.filter(curso => 
+            estudiantes.some(e => e.cursoIds && e.cursoIds.includes(curso.id))
+        ).length;
+        const sinEstudiantes = total - cursosConEstudiantes;
+        
+        // Contar cursos con y sin profesor
+        const cursosConProfesor = cursos.filter(curso => 
+            profesores.some(p => p.cursoIds && p.cursoIds.includes(curso.id))
+        ).length;
+        const sinProfesor = total - cursosConProfesor;
+        
+        // Estadísticas de créditos
+        const totalCreditos = cursos.reduce((sum, c) => sum + (c.creditos || 0), 0);
+        const promedioCreditos = total > 0 ? (totalCreditos / total).toFixed(1) : 0;
+        
+        // Promedio de estudiantes por curso
+        const totalEstudiantesPorCurso = cursos.reduce((sum, curso) => {
+            const estudiantesEnCurso = estudiantes.filter(e => 
+                e.cursoIds && e.cursoIds.includes(curso.id)
+            ).length;
+            return sum + estudiantesEnCurso;
+        }, 0);
+        const promedioEstudiantes = total > 0 ? (totalEstudiantesPorCurso / total).toFixed(1) : 0;
+        
+        // Curso más popular
+        let cursoMasPopular = 'Ninguno';
+        let maxEstudiantes = 0;
+        
+        cursos.forEach(curso => {
+            const estudiantesEnCurso = estudiantes.filter(e => 
+                e.cursoIds && e.cursoIds.includes(curso.id)
+            ).length;
+            
+            if (estudiantesEnCurso > maxEstudiantes) {
+                maxEstudiantes = estudiantesEnCurso;
+                cursoMasPopular = `${curso.codigo} - ${curso.nombre} (${estudiantesEnCurso} estudiantes)`;
+            }
+        });
 
         return {
             total,
-            activos,
-            inactivos,
+            conEstudiantes: cursosConEstudiantes,
+            sinEstudiantes,
+            conProfesor: cursosConProfesor,
+            sinProfesor,
             totalCreditos,
-            promedioCreditos
+            promedioCreditos,
+            promedioEstudiantes,
+            cursoMasPopular
         };
     }
 
@@ -554,6 +688,25 @@ class ReportesManager {
             }
         `;
         document.head.appendChild(styles);
+    }
+
+    // Funciones auxiliares para obtener nombres de cursos y proyectos
+    getCursosNames(cursoIds, cursos) {
+        if (!cursoIds || cursoIds.length === 0) return 'Ninguno';
+        
+        return cursoIds.map(id => {
+            const curso = cursos.find(c => c.id === id);
+            return curso ? `${curso.codigo} - ${curso.nombre}` : `Curso ID: ${id}`;
+        }).join('; ');
+    }
+    
+    getProyectosNames(proyectoIds, proyectos) {
+        if (!proyectoIds || proyectoIds.length === 0) return 'Ninguno';
+        
+        return proyectoIds.map(id => {
+            const proyecto = proyectos.find(p => p.id === id);
+            return proyecto ? proyecto.titulo : `Proyecto ID: ${id}`;
+        }).join('; ');
     }
 }
 
