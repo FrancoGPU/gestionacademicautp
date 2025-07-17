@@ -29,9 +29,9 @@ class EstudiantesManager {
     async loadCursosAndProyectos() {
         try {
             const [cursosData, proyectosData, profesoresData] = await Promise.all([
-                API.cursos.getAll(),
-                API.proyectos.getAll(),
-                API.profesores.getAll()
+                cursosService.getAll(),
+                proyectosService.getAll(),
+                profesoresService.getAll()
             ]);
             this.cursos = cursosData;
             this.proyectos = proyectosData;
@@ -53,7 +53,7 @@ class EstudiantesManager {
         try {
             Utils.showLoading();
             
-            const data = await API.estudiantes.getAll();
+            const data = await estudiantesService.getAll();
             this.estudiantes = data;
             this.filteredEstudiantes = [...data];
             
@@ -305,7 +305,7 @@ class EstudiantesManager {
 
     async viewEstudiante(id) {
         try {
-            const estudiante = await API.estudiantes.getById(id);
+            const estudiante = await estudiantesService.getById(id);
             this.showEstudianteDetails(estudiante);
         } catch (error) {
             console.error('Error loading estudiante:', error);
@@ -455,7 +455,7 @@ class EstudiantesManager {
         if (!confirmed) return;
 
         try {
-            await API.estudiantes.delete(id);
+            await estudiantesService.delete(id);
             Utils.showNotification('Estudiante eliminado correctamente', 'success');
             this.loadTable();
         } catch (error) {
@@ -568,11 +568,11 @@ class EstudiantesManager {
             
             if (this.currentEstudiante) {
                 // Actualizar
-                await API.estudiantes.update(this.currentEstudiante.id, formData);
+                await estudiantesService.update(this.currentEstudiante.id, formData);
                 Utils.showNotification('Estudiante actualizado correctamente', 'success');
             } else {
                 // Crear nuevo
-                await API.estudiantes.create(formData);
+                await estudiantesService.create(formData);
                 Utils.showNotification('Estudiante creado correctamente', 'success');
             }
             

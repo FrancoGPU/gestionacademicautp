@@ -1,4 +1,5 @@
 // Manejo de Profesores - Similar estructura a estudiantes
+console.log('Cargando profesores.js - Versión actualizada con profesoresService');
 class ProfesoresManager {
     constructor() {
         this.profesores = [];
@@ -439,11 +440,12 @@ class ProfesoresManager {
                 <div class="form-group">
                     <label class="form-label">Cursos Asignados</label>
                     <select name="cursoIds" class="form-select" multiple size="6">
-                        ${this.cursos.map(curso => `
-                            <option value="${curso.id}" ${profesor?.cursoIds?.includes(curso.id) ? 'selected' : ''}>
+                        ${this.cursos.map(curso => {
+                            const isSelected = profesor?.cursoIds && Array.isArray(profesor.cursoIds) && profesor.cursoIds.includes(curso.id);
+                            return `<option value="${curso.id}" ${isSelected ? 'selected' : ''}>
                                 ${curso.codigo} - ${curso.nombre}
-                            </option>
-                        `).join('')}
+                            </option>`;
+                        }).join('')}
                     </select>
                     <small class="form-help">Mantén presionado Ctrl (Cmd en Mac) para seleccionar múltiples cursos</small>
                 </div>
@@ -481,7 +483,11 @@ class ProfesoresManager {
         // Handle multiple select for cursoIds
         const cursoSelect = form.querySelector('select[name="cursoIds"]');
         if (cursoSelect) {
-            formData.cursoIds = Array.from(cursoSelect.selectedOptions).map(option => parseInt(option.value));
+            const selectedCursos = Array.from(cursoSelect.selectedOptions).map(option => parseInt(option.value));
+            formData.cursoIds = selectedCursos.length > 0 ? selectedCursos : null;
+            console.log('Cursos seleccionados:', formData.cursoIds);
+        } else {
+            formData.cursoIds = null;
         }
         
         try {

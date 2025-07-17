@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS profesores (
     anos_experiencia INT,
     activo BOOLEAN,
     created_at TIMESTAMP,
-    curso_ids SET<TEXT>
+    curso_ids SET<INT>
 );
 
 -- Crear índices para consultas eficientes
