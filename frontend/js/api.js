@@ -32,10 +32,10 @@ class ApiService {
 
         try {
             Utils.showLoading();
-            
+
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), API_CONFIG.timeout);
-            
+
             config.signal = controller.signal;
 
             const response = await fetch(url, config);
@@ -52,7 +52,7 @@ class ApiService {
         } catch (error) {
             Utils.hideLoading();
             console.error('API Error:', error);
-            
+
             if (error.name === 'AbortError') {
                 throw new Error('La solicitud tardó demasiado tiempo');
             } else if (error.message.includes('500')) {
@@ -64,7 +64,7 @@ class ApiService {
             } else if (error.message.includes('403')) {
                 throw new Error('Acceso denegado');
             }
-            
+
             throw error;
         }
     }
@@ -105,7 +105,7 @@ class ApiService {
     async uploadFile(endpoint, file, additionalData = {}) {
         const formData = new FormData();
         formData.append('file', file);
-        
+
         Object.keys(additionalData).forEach(key => {
             formData.append(key, additionalData[key]);
         });
@@ -310,7 +310,7 @@ class ReportesService extends ApiService {
         const response = await fetch(`${this.baseURL}/reportes/export/${tipo}?${params}`, {
             headers: this.defaultHeaders
         });
-        
+
         if (!response.ok) {
             throw new Error('Error al exportar el reporte');
         }
@@ -374,7 +374,7 @@ const authService = new AuthService();
 
 // Interceptor para manejar errores de autenticación
 const originalMakeRequest = ApiService.prototype.makeRequest;
-ApiService.prototype.makeRequest = async function(endpoint, options) {
+ApiService.prototype.makeRequest = async function (endpoint, options) {
     try {
         return await originalMakeRequest.call(this, endpoint, options);
     } catch (error) {
@@ -382,7 +382,7 @@ ApiService.prototype.makeRequest = async function(endpoint, options) {
             // Token expirado o inválido
             localStorage.removeItem('authToken');
             localStorage.removeItem('userData');
-            
+
             // Redirigir al login si no estamos ya ahí
             if (!window.location.pathname.includes('login')) {
                 Utils.showNotification('Sesión expirada. Por favor, inicia sesión nuevamente.', 'warning');
@@ -430,7 +430,7 @@ const MOCK_DATA = {
 };
 
 // Función para usar datos mock en desarrollo
-window.useMockData = function() {
+window.useMockData = function () {
     // Override de los servicios para usar datos mock
     estudiantesService.getAll = () => Promise.resolve(MOCK_DATA.estudiantes);
     estudiantesService.getById = (id) => Promise.resolve(MOCK_DATA.estudiantes.find(e => e.id == id));
@@ -456,7 +456,7 @@ window.useMockData = function() {
         }
         return Promise.reject(new Error('Estudiante no encontrado'));
     };
-    
+
     profesoresService.getAll = () => Promise.resolve(MOCK_DATA.profesores);
     profesoresService.getById = (id) => Promise.resolve(MOCK_DATA.profesores.find(p => p.id == id));
     profesoresService.create = (data) => {
@@ -481,7 +481,7 @@ window.useMockData = function() {
         }
         return Promise.reject(new Error('Profesor no encontrado'));
     };
-    
+
     cursosService.getAll = () => Promise.resolve(MOCK_DATA.cursos);
     cursosService.getById = (id) => Promise.resolve(MOCK_DATA.cursos.find(c => c.id == id));
     cursosService.create = (data) => {
@@ -506,7 +506,7 @@ window.useMockData = function() {
         }
         return Promise.reject(new Error('Curso no encontrado'));
     };
-    
+
     proyectosService.getAll = () => Promise.resolve(MOCK_DATA.proyectos);
     proyectosService.getById = (id) => Promise.resolve(MOCK_DATA.proyectos.find(p => p.id == id));
     proyectosService.create = (data) => {
@@ -531,7 +531,7 @@ window.useMockData = function() {
         }
         return Promise.reject(new Error('Proyecto no encontrado'));
     };
-    
+
     reportesService.getDashboardStats = () => Promise.resolve({
         totalEstudiantes: MOCK_DATA.estudiantes.length,
         totalProfesores: MOCK_DATA.profesores.length,

@@ -29,7 +29,7 @@ class ProfesoresManager {
     async loadTable() {
         try {
             Utils.showLoading();
-            const data = await API.profesores.getAll();
+            const data = await profesoresService.getAll();
             this.profesores = data;
             this.filteredProfesores = [...data];
             this.renderTable();
@@ -264,7 +264,7 @@ class ProfesoresManager {
 
     async viewProfesor(id) {
         try {
-            const profesor = await API.profesores.getById(id);
+            const profesor = await profesoresService.getById(id);
             this.showProfesorDetails(profesor);
         } catch (error) {
             console.error('Error loading profesor:', error);
@@ -350,7 +350,7 @@ class ProfesoresManager {
         if (!confirmed) return;
 
         try {
-            await API.profesores.delete(id);
+            await profesoresService.delete(id);
             Utils.showNotification('Profesor eliminado correctamente', 'success');
             this.loadTable();
         } catch (error) {
@@ -488,10 +488,12 @@ class ProfesoresManager {
             Utils.showLoading();
             
             if (this.currentProfesor) {
-                await API.profesores.update(this.currentProfesor.id, formData);
+                console.log('Actualizando profesor:', this.currentProfesor.id, formData);
+                await profesoresService.update(this.currentProfesor.id, formData);
                 Utils.showNotification('Profesor actualizado correctamente', 'success');
             } else {
-                await API.profesores.create(formData);
+                console.log('Creando nuevo profesor:', formData);
+                await profesoresService.create(formData);
                 Utils.showNotification('Profesor creado correctamente', 'success');
             }
             
@@ -527,7 +529,7 @@ class ProfesoresManager {
 
     async loadCursos() {
         try {
-            this.cursos = await API.cursos.getAll();
+            this.cursos = await cursosService.getAll();
         } catch (error) {
             console.error('Error loading cursos:', error);
             this.cursos = [];
