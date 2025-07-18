@@ -475,7 +475,7 @@ window.useMockData = function () {
     });
 };
 
-// Activar datos mock en desarrollo (DESHABILITADO - Usando datos reales de BD)
+// Activar datos mock en desarrollo (DESHABILITADO - Backend funcionando)
 // if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
 //     console.log('Activando datos mock para desarrollo...');
 //     window.useMockData();

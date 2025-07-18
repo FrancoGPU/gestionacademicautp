@@ -11,6 +11,36 @@ class AuthUI {
         userAuthService.onAuthChange((isAuthenticated, user) => {
             this.updateUserButton(isAuthenticated, user);
         });
+        
+        // Interceptar navegación para forzar autenticación
+        this.interceptNavigation();
+    }
+    
+    interceptNavigation() {
+        // Interceptar clicks en elementos de navegación
+        document.addEventListener('click', (e) => {
+            // Si el usuario no está autenticado y hace clic en navegación
+            if (!userAuthService.isAuthenticated) {
+                const navElement = e.target.closest('.nav-item, .menu-item, [data-section]');
+                if (navElement) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.showLoginModal();
+                    this.showNotification('Debe iniciar sesión para navegar', 'warning');
+                    return false;
+                }
+            }
+        });
+        
+        // Interceptar intentos de cambio de sección
+        window.addEventListener('sectionChanged', (e) => {
+            if (!userAuthService.isAuthenticated) {
+                e.preventDefault();
+                e.stopPropagation();
+                this.showLoginModal();
+                return false;
+            }
+        });
     }
     
     createLoginModal() {
@@ -18,24 +48,24 @@ class AuthUI {
             <div id="loginModal" class="modal" style="display: none;">
                 <div class="modal-content" style="max-width: 400px;">
                     <div class="modal-header">
-                        <h2>Iniciar Sesión</h2>
-                        <span class="close" onclick="authUI.closeLoginModal()">&times;</span>
+                        <h2 class="modal-title">Iniciar Sesión</h2>
+                        <!-- Botón de cerrar removido para hacer login obligatorio -->
                     </div>
                     <div class="modal-body">
-                        <div class="login-required-notice" style="background: #e3f2fd; padding: 10px; border-radius: 5px; margin-bottom: 15px; border-left: 4px solid #2196f3;">
+                        <div class="warning-message login-required-notice">
                             <strong>⚠️ Acceso requerido</strong><br>
-                            <small>Debe iniciar sesión para acceder al sistema.</small>
+                            <small>Debe iniciar sesión para acceder al sistema. No podrá cerrar esta ventana hasta hacerlo.</small>
                         </div>
                         <form id="loginForm">
                             <div class="form-group">
                                 <label for="username">Usuario:</label>
                                 <input type="text" id="username" name="username" required 
-                                       placeholder="Ingrese su usuario" autocomplete="username">
+                                       placeholder="Ingrese su usuario" autocomplete="username" class="form-input">
                             </div>
                             <div class="form-group">
                                 <label for="password">Contraseña:</label>
                                 <input type="password" id="password" name="password" required 
-                                       placeholder="Ingrese su contraseña" autocomplete="current-password">
+                                       placeholder="Ingrese su contraseña" autocomplete="current-password" class="form-input">
                             </div>
                             <div class="form-group">
                                 <button type="submit" class="btn btn-primary" style="width: 100%;">
@@ -45,16 +75,16 @@ class AuthUI {
                             <div id="loginError" class="error-message" style="display: none;"></div>
                         </form>
                         
-                        <div class="login-help" style="margin-top: 20px; font-size: 0.9em;">
-                            <h4 style="color: #333; margin-bottom: 10px;">Credenciales de administrador:</h4>
-                            <div style="background: linear-gradient(145deg, #e3f2fd, #f8f9fa); padding: 15px; border-radius: 8px; border-left: 4px solid #2196f3; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                                <div style="margin-bottom: 8px;">
-                                    <strong style="color: #1976d2;">Usuario:</strong> 
-                                    <span style="font-family: monospace; background: #fff; padding: 2px 6px; border-radius: 3px; border: 1px solid #ddd;">admin</span>
+                        <div class="login-help">
+                            <h4>Credenciales de administrador:</h4>
+                            <div class="credentials-info">
+                                <div class="credential-item">
+                                    <strong>Usuario:</strong> 
+                                    <span class="credential-value">admin</span>
                                 </div>
-                                <div>
-                                    <strong style="color: #1976d2;">Contraseña:</strong> 
-                                    <span style="font-family: monospace; background: #fff; padding: 2px 6px; border-radius: 3px; border: 1px solid #ddd;">admin123</span>
+                                <div class="credential-item">
+                                    <strong>Contraseña:</strong> 
+                                    <span class="credential-value">admin123</span>
                                 </div>
                             </div>
                         </div>
@@ -80,9 +110,6 @@ class AuthUI {
                             <!-- Se llenará dinámicamente -->
                         </div>
                         <div class="user-actions">
-                            <button onclick="authUI.showProfile()" class="btn btn-secondary" style="width: 100%; margin-bottom: 10px;">
-                                Ver Perfil
-                            </button>
                             <button onclick="authUI.logout()" class="btn btn-danger" style="width: 100%;">
                                 Cerrar Sesión
                             </button>
@@ -103,22 +130,12 @@ class AuthUI {
             await this.handleLogin();
         });
         
-        // Cerrar modales al hacer clic fuera (solo si está autenticado)
+        // Cerrar modales al hacer clic fuera
         window.addEventListener('click', (e) => {
-            if (e.target === this.loginModal && userAuthService.isAuthenticated) {
+            if (e.target === this.loginModal) {
                 this.closeLoginModal();
             }
             if (e.target === this.userMenuModal) {
-                this.closeUserMenu();
-            }
-        });
-        
-        // Esc para cerrar modales (solo si está autenticado para el login modal)
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                if (userAuthService.isAuthenticated) {
-                    this.closeLoginModal();
-                }
                 this.closeUserMenu();
             }
         });
@@ -129,31 +146,23 @@ class AuthUI {
         const password = document.getElementById('password').value;
         const errorDiv = document.getElementById('loginError');
         
-        // Limpiar errores previos
-        errorDiv.style.display = 'none';
-        
-        // Deshabilitar botón durante login
-        const submitBtn = document.querySelector('#loginForm button[type="submit"]');
-        const originalText = submitBtn.textContent;
-        submitBtn.disabled = true;
-        submitBtn.textContent = 'Iniciando...';
-        
         try {
             const result = await userAuthService.login(username, password);
             
             if (result.success) {
                 this.closeLoginModal();
-                this.showNotification('¡Bienvenido! Sesión iniciada correctamente.', 'success');
+                this.showNotification('Inicio de sesión exitoso', 'success');
+                // Limpiar el formulario
+                document.getElementById('loginForm').reset();
+                errorDiv.style.display = 'none';
             } else {
-                errorDiv.textContent = result.message || 'Credenciales inválidas';
+                errorDiv.textContent = result.message || 'Error al iniciar sesión';
                 errorDiv.style.display = 'block';
             }
         } catch (error) {
-            errorDiv.textContent = 'Error de conexión. Intente nuevamente.';
+            console.error('Error en login:', error);
+            errorDiv.textContent = 'Error de conexión';
             errorDiv.style.display = 'block';
-        } finally {
-            submitBtn.disabled = false;
-            submitBtn.textContent = originalText;
         }
     }
     
@@ -161,129 +170,159 @@ class AuthUI {
         const userButton = document.getElementById('usuario-button');
         if (!userButton) return;
         
-        // Controlar visibilidad del contenido principal
-        const mainContent = document.querySelector('.main-content');
-        const sidebar = document.querySelector('.sidebar');
-        
         if (isAuthenticated && user) {
-            userButton.textContent = user.fullName || user.username;
+            userButton.textContent = `👤 ${user.fullName || user.username}`;
             userButton.onclick = () => this.showUserMenu();
-            userButton.style.backgroundColor = '#28a745';
-            userButton.title = `Conectado como: ${user.fullName} (${user.role})`;
+            userButton.style.display = 'block';
             
-            // Mostrar contenido principal y ocultar mensaje de login
-            if (mainContent) mainContent.style.display = 'block';
-            if (sidebar) sidebar.style.display = 'block';
+            // Ocultar mensaje de login requerido si existe
             this.hideLoginRequiredMessage();
-            
         } else {
-            userButton.textContent = 'Usuario';
+            userButton.textContent = '👤 Usuario';
             userButton.onclick = () => this.showLoginModal();
-            userButton.style.backgroundColor = '';
-            userButton.title = 'Hacer clic para iniciar sesión';
+            userButton.style.display = 'block';
             
-            // Ocultar contenido principal y mostrar mensaje de login requerido
-            if (mainContent) {
-                mainContent.style.display = 'none';
-            }
-            if (sidebar) {
-                sidebar.style.display = 'none';
-            }
-            
-            // Crear mensaje de login requerido si no existe
+            // Mostrar mensaje de login requerido
             this.showLoginRequiredMessage();
+            
+            // Forzar mostrar modal de login inmediatamente si no está autenticado
+            setTimeout(() => {
+                if (!userAuthService.isAuthenticated) {
+                    this.showLoginModal();
+                }
+            }, 200);
         }
     }
     
     showLoginModal() {
-        this.loginModal.style.display = 'block';
-        document.getElementById('username').focus();
+        if (this.loginModal) {
+            this.loginModal.style.display = 'block';
+            
+            // Hacer el modal obligatorio - deshabilitar cierre con ESC y click fuera
+            this.loginModal.classList.add('modal-mandatory');
+            
+            // Focus en el campo de usuario
+            setTimeout(() => {
+                const usernameField = document.getElementById('username');
+                if (usernameField) {
+                    usernameField.focus();
+                }
+            }, 100);
+            
+            // Prevenir cierre con tecla ESC
+            this.preventModalClose();
+        }
+    }
+    
+    preventModalClose() {
+        // Deshabilitar cierre con ESC
+        document.addEventListener('keydown', this.preventEscClose);
         
-        // Limpiar formulario
-        document.getElementById('loginForm').reset();
-        document.getElementById('loginError').style.display = 'none';
-        
-        // Ocultar botón de cerrar si no hay sesión activa
-        const closeButton = this.loginModal.querySelector('.close');
-        if (!userAuthService.isAuthenticated) {
-            closeButton.style.display = 'none';
-        } else {
-            closeButton.style.display = 'block';
+        // Deshabilitar cierre haciendo clic fuera del modal
+        this.loginModal.addEventListener('click', this.preventOutsideClick);
+    }
+    
+    preventEscClose = (e) => {
+        if (e.key === 'Escape' && this.loginModal.style.display === 'block' && !userAuthService.isAuthenticated) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('⚠️ No se puede cerrar el modal hasta iniciar sesión');
+        }
+    }
+    
+    preventOutsideClick = (e) => {
+        if (e.target === this.loginModal && !userAuthService.isAuthenticated) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('⚠️ No se puede cerrar el modal hasta iniciar sesión');
         }
     }
     
     closeLoginModal() {
-        // Solo permitir cerrar el modal si el usuario está autenticado
-        if (userAuthService.isAuthenticated) {
+        // Solo permitir cerrar si el usuario está autenticado
+        if (!userAuthService.isAuthenticated) {
+            console.log('⚠️ No se puede cerrar el modal hasta iniciar sesión');
+            return false;
+        }
+        
+        if (this.loginModal) {
             this.loginModal.style.display = 'none';
-        } else {
-            // Si no está autenticado, mostrar mensaje y mantener modal abierto
-            this.showNotification('Debe iniciar sesión para continuar.', 'warning');
+            this.loginModal.classList.remove('modal-mandatory');
+            
+            // Remover listeners de prevención
+            document.removeEventListener('keydown', this.preventEscClose);
+            this.loginModal.removeEventListener('click', this.preventOutsideClick);
+            
+            // Limpiar errores
+            const errorDiv = document.getElementById('loginError');
+            if (errorDiv) {
+                errorDiv.style.display = 'none';
+            }
         }
     }
     
     showUserMenu() {
-        const user = userAuthService.getCurrentUser();
-        if (!user) return;
-        
-        const userInfo = document.getElementById('userInfo');
-        userInfo.innerHTML = `
-            <div class="user-profile">
-                <div class="user-avatar">
-                    <i class="fas fa-user"></i>
-                </div>
-                <div class="user-name">${user.fullName}</div>
-                <div class="user-role">${this.getRoleDisplayName(user.role)}</div>
-                <div style="margin-top: 10px; font-size: 0.9em; color: var(--text-secondary);">
-                    @${user.username}
-                </div>
-                ${user.email ? `<div style="font-size: 0.8em; color: var(--text-secondary); margin-top: 5px;">${user.email}</div>` : ''}
-            </div>
-        `;
-        
-        this.userMenuModal.style.display = 'block';
+        if (this.userMenuModal) {
+            // Actualizar información del usuario
+            const user = userAuthService.getCurrentUser();
+            const userInfo = document.getElementById('userInfo');
+            
+            if (user && userInfo) {
+                userInfo.innerHTML = `
+                    <div class="user-profile">
+                        <h4>${user.fullName || user.username}</h4>
+                        <p><strong>Usuario:</strong> ${user.username}</p>
+                        <p><strong>Email:</strong> ${user.email || 'No especificado'}</p>
+                        <p><strong>Rol:</strong> ${this.getRoleDisplayName(user.role)}</p>
+                    </div>
+                `;
+            }
+            
+            this.userMenuModal.style.display = 'block';
+        }
     }
     
     closeUserMenu() {
-        this.userMenuModal.style.display = 'none';
+        if (this.userMenuModal) {
+            this.userMenuModal.style.display = 'none';
+        }
     }
     
     async logout() {
         try {
             await userAuthService.logout();
             this.closeUserMenu();
-            this.showNotification('Sesión cerrada correctamente.', 'info');
+            this.showNotification('Sesión cerrada correctamente', 'success');
+            
+            // Forzar modal de login inmediatamente después del logout
+            setTimeout(() => {
+                this.showLoginModal();
+            }, 500); // Pequeño delay para que se vea la notificación
+            
         } catch (error) {
-            // Incluso si hay error, la sesión se cierra localmente
-            this.closeUserMenu();
-            this.showNotification('Sesión cerrada correctamente.', 'info');
+            console.error('Error al cerrar sesión:', error);
+            this.showNotification('Error al cerrar sesión', 'error');
+            
+            // Aún así forzar el login modal en caso de error
+            setTimeout(() => {
+                this.showLoginModal();
+            }, 500);
         }
-    }
-    
-    showProfile() {
-        // Implementar vista de perfil en el futuro
-        this.closeUserMenu();
-        this.showNotification('Función de perfil próximamente disponible.', 'info');
     }
     
     getRoleDisplayName(role) {
-        const roles = {
+        const roleNames = {
             'ADMIN': 'Administrador',
-            'USER': 'Usuario',
-            'PROFESSOR': 'Profesor'
+            'PROFESOR': 'Profesor',
+            'ESTUDIANTE': 'Estudiante'
         };
-        return roles[role] || role;
+        return roleNames[role] || role;
     }
     
     showNotification(message, type = 'info') {
-        // Reutilizar el sistema de notificaciones existente si existe
-        if (window.showNotification) {
-            window.showNotification(message, type);
-            return;
-        }
-        
-        // Sistema de notificaciones simple
+        // Crear notificación
         const notification = document.createElement('div');
+        notification.className = `notification notification-${type}`;
         notification.style.cssText = `
             position: fixed;
             top: 20px;
@@ -291,16 +330,18 @@ class AuthUI {
             padding: 15px 20px;
             border-radius: 5px;
             color: white;
-            z-index: 10000;
             font-weight: 500;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            z-index: 10000;
+            max-width: 300px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
         `;
         
+        // Colores según el tipo
         const colors = {
-            success: '#28a745',
-            error: '#dc3545',
-            info: '#17a2b8',
-            warning: '#ffc107'
+            'success': '#10b981',
+            'error': '#ef4444',
+            'warning': '#f59e0b',
+            'info': '#3b82f6'
         };
         
         notification.style.backgroundColor = colors[type] || colors.info;
@@ -308,71 +349,95 @@ class AuthUI {
         
         document.body.appendChild(notification);
         
+        // Remover después de 3 segundos
         setTimeout(() => {
-            notification.remove();
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
         }, 3000);
     }
     
     showLoginRequiredMessage() {
-        // Eliminar mensaje existente si hay uno
-        this.hideLoginRequiredMessage();
+        // Mostrar mensaje persistente de que se requiere login
+        const existingMessage = document.getElementById('loginRequiredBanner');
+        if (existingMessage) return;
         
-        const message = document.createElement('div');
-        message.id = 'loginRequiredMessage';
-        message.style.cssText = `
+        const banner = document.createElement('div');
+        banner.id = 'loginRequiredBanner';
+        banner.style.cssText = `
             position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: linear-gradient(145deg, #2196f3, #1976d2);
-            color: white;
-            padding: 30px;
-            border-radius: 15px;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(245, 158, 11, 0.95);
+            color: #000;
             text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            z-index: 999;
-            font-family: inherit;
-            max-width: 400px;
-            backdrop-filter: blur(10px);
+            padding: 10px;
+            font-weight: 500;
+            z-index: 9999;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
         `;
-        
-        message.innerHTML = `
-            <h3 style="margin: 0 0 15px 0; font-size: 1.5em;">🔐 Acceso Restringido</h3>
-            <p style="margin: 0 0 20px 0; opacity: 0.9;">Debe iniciar sesión para acceder al Sistema Académico UTP</p>
-            <button onclick="authUI.showLoginModal()" style="
-                background: rgba(255,255,255,0.2);
-                border: 1px solid rgba(255,255,255,0.3);
-                color: white;
-                padding: 12px 25px;
-                border-radius: 25px;
-                cursor: pointer;
-                font-size: 1em;
-                backdrop-filter: blur(10px);
-                transition: all 0.3s ease;
-            " onmouseover="this.style.background='rgba(255,255,255,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.2)'">
+        banner.innerHTML = `
+            ⚠️ Debe iniciar sesión para acceder al sistema completo
+            <button onclick="authUI.showLoginModal()" style="margin-left: 10px; padding: 5px 10px; background: #000; color: #fff; border: none; border-radius: 3px; cursor: pointer;">
                 Iniciar Sesión
             </button>
         `;
         
-        document.body.appendChild(message);
+        document.body.insertBefore(banner, document.body.firstChild);
+        
+        // Ajustar el padding del body para compensar el banner
+        document.body.style.paddingTop = '50px';
     }
     
     hideLoginRequiredMessage() {
-        const message = document.getElementById('loginRequiredMessage');
-        if (message) {
-            message.remove();
+        const banner = document.getElementById('loginRequiredBanner');
+        if (banner) {
+            banner.remove();
+            document.body.style.paddingTop = '0';
         }
     }
 }
 
-// Instancia global del UI de autenticación
-const authUI = new AuthUI();
-
-// Función global para usar desde el HTML
+// Función global para compatibilidad
 function toggleLogin() {
-    if (userAuthService.isUserAuthenticated()) {
-        authUI.showUserMenu();
-    } else {
+    if (window.authUI) {
         authUI.showLoginModal();
     }
+}
+
+// Función para proteger acciones que requieren autenticación
+function requireAuth(callback, message = 'Debe iniciar sesión para realizar esta acción') {
+    if (!userAuthService || !userAuthService.isAuthenticated) {
+        if (window.authUI) {
+            window.authUI.showLoginModal();
+            window.authUI.showNotification(message, 'warning');
+        }
+        return false;
+    }
+    return callback();
+}
+
+// Sobrescribir el navigationManager para requerir autenticación
+document.addEventListener('DOMContentLoaded', () => {
+    // Proteger navegación
+    if (window.navigationManager && window.navigationManager.navigateToSection) {
+        const originalNavigate = window.navigationManager.navigateToSection;
+        window.navigationManager.navigateToSection = function(section) {
+            return requireAuth(() => originalNavigate.call(this, section), 
+                'Debe iniciar sesión para navegar a esta sección');
+        };
+    }
+});
+
+// Inicializar cuando se carga el DOM
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.authUI) {
+        window.authUI = new AuthUI();
+    }
+});
+
+// También disponible globalmente
+if (!window.authUI) {
+    window.authUI = new AuthUI();
 }
