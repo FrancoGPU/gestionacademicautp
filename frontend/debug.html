@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Themes</title>
+    <style>
+        /* Estilos básicos */
+        body { margin: 0; padding: 20px; font-family: Arial, sans-serif; }
+        
+        /* Botón base */
+        .user-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 20px;
+            border-radius: 25px;
+            background: linear-gradient(145deg, #2563eb, #1d4ed8);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            margin: 10px;
+        }
+        
+        /* Tema glassmorfismo */
+        [data-theme="glass"] {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        [data-theme="glass"] .user-button {
+            background: rgba(255, 255, 255, 0.15) !important;
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.3) !important;
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+            color: white !important;
+        }
+        
+        [data-theme="glass"] .user-button::after {
+            content: ' ✨';
+        }
+        
+        /* Indicador de tema activo */
+        .theme-indicator {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            padding: 10px;
+            background: red;
+            color: white;
+            border-radius: 5px;
+        }
+        
+        [data-theme="glass"] .theme-indicator {
+            background: green;
+            content: 'GLASS ACTIVE';
+        }
+        
+        [data-theme="glass"] .theme-indicator::after {
+            content: ' - GLASS THEME';
+        }
+    </style>
+</head>
+<body>
+    <div class="theme-indicator">TEMA: LIGHT</div>
+    
+    <h1>Debug de Temas</h1>
+    
+    <p>Selector de tema:</p>
+    <select id="themeSelect">
+        <option value="light">Claro</option>
+        <option value="glass">Glassmorfismo</option>
+    </select>
+    
+    <p>Botones de prueba:</p>
+    <button class="user-button">
+        <i>👤</i>
+        <span>Usuario Normal</span>
+    </button>
+    
+    <button id="usuario-button" class="user-button">
+        <i>👤</i>
+        <span>Usuario (ID)</span>
+    </button>
+    
+    <script>
+        const themeSelect = document.getElementById('themeSelect');
+        const indicator = document.querySelector('.theme-indicator');
+        
+        themeSelect.addEventListener('change', (e) => {
+            const theme = e.target.value;
+            
+            // Limpiar tema anterior
+            document.documentElement.removeAttribute('data-theme');
+            
+            // Aplicar nuevo tema
+            if (theme !== 'light') {
+                document.documentElement.setAttribute('data-theme', theme);
+            }
+            
+            indicator.textContent = `TEMA: ${theme.toUpperCase()}`;
+            
+            console.log('Tema cambiado a:', theme);
+            console.log('data-theme en html:', document.documentElement.getAttribute('data-theme'));
+        });
+    </script>
+</body>
+</html>

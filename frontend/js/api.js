@@ -24,11 +24,8 @@ class ApiService {
             ...options
         };
 
-        // Agregar token de autorización si existe
-        const token = localStorage.getItem('authToken');
-        if (token) {
-            config.headers['Authorization'] = `Bearer ${token}`;
-        }
+        // El nuevo sistema de autenticación usa cookies de sesión
+        // por lo que no necesitamos manejar tokens manualmente
 
         try {
             Utils.showLoading();
@@ -327,73 +324,12 @@ class ReportesService extends ApiService {
     }
 }
 
-// Servicio de autenticación
-class AuthService extends ApiService {
-    async login(credentials) {
-        const response = await this.post('/auth/login', credentials);
-        if (response.token) {
-            localStorage.setItem('authToken', response.token);
-            localStorage.setItem('userData', JSON.stringify(response.user));
-        }
-        return response;
-    }
-
-    async logout() {
-        try {
-            await this.post('/auth/logout');
-        } catch (error) {
-            console.error('Error during logout:', error);
-        } finally {
-            localStorage.removeItem('authToken');
-            localStorage.removeItem('userData');
-            window.location.href = '/login.html';
-        }
-    }
-
-    async getCurrentUser() {
-        return this.get('/auth/me');
-    }
-
-    isAuthenticated() {
-        return !!localStorage.getItem('authToken');
-    }
-
-    getCurrentUserData() {
-        const userData = localStorage.getItem('userData');
-        return userData ? JSON.parse(userData) : null;
-    }
-}
-
 // Crear instancias de los servicios
 const estudiantesService = new EstudiantesService();
 const profesoresService = new ProfesoresService();
 const cursosService = new CursosService();
 const proyectosService = new ProyectosService();
 const reportesService = new ReportesService();
-const authService = new AuthService();
-
-// Interceptor para manejar errores de autenticación
-const originalMakeRequest = ApiService.prototype.makeRequest;
-ApiService.prototype.makeRequest = async function (endpoint, options) {
-    try {
-        return await originalMakeRequest.call(this, endpoint, options);
-    } catch (error) {
-        if (error.message.includes('401')) {
-            // Token expirado o inválido
-            localStorage.removeItem('authToken');
-            localStorage.removeItem('userData');
-
-            // Redirigir al login si no estamos ya ahí
-            if (!window.location.pathname.includes('login')) {
-                Utils.showNotification('Sesión expirada. Por favor, inicia sesión nuevamente.', 'warning');
-                setTimeout(() => {
-                    window.location.href = '/login.html';
-                }, 2000);
-            }
-        }
-        throw error;
-    }
-};
 
 // Exportar servicios globalmente
 window.API = {
@@ -401,8 +337,7 @@ window.API = {
     profesores: profesoresService,
     cursos: cursosService,
     proyectos: proyectosService,
-    reportes: reportesService,
-    auth: authService
+    reportes: reportesService
 };
 
 // Mock data para desarrollo (eliminar en producción)

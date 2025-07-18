@@ -460,18 +460,8 @@ class App {
     }
 
     async checkAuthentication() {
-        // Si necesitas autenticación, descomenta y modifica esto
-        /*
-        try {
-            const isAuthenticated = await API.auth.isAuthenticated();
-            if (!isAuthenticated) {
-                window.location.href = '/login.html';
-                return;
-            }
-        } catch (error) {
-            console.error('Error checking authentication:', error);
-        }
-        */
+        // La autenticación ahora es manejada por el sistema UserAuthService
+        // No es necesario hacer nada aquí por ahora
     }
 
     finishInitialization() {

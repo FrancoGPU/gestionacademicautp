@@ -328,10 +328,11 @@ class Dashboard {
 
     // Exportar datos del dashboard
     exportDashboardData() {
+        const currentUser = userAuthService.getCurrentUser();
         const data = {
             estadisticas: this.stats,
             fechaExportacion: new Date().toISOString(),
-            usuario: 'Admin' // Obtener del contexto de usuario
+            usuario: currentUser ? currentUser.fullName : 'Anónimo'
         };
 
         Utils.exportToCSV([data], `dashboard_${Utils.formatDateOnly(new Date())}.csv`);

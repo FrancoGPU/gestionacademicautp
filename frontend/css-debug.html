@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="glass">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS Debug Test</title>
+    <link rel="stylesheet" href="css/styles.css?v=3">
+    <link rel="stylesheet" href="css/themes.css?v=3">
+    <style>
+        .debug-info {
+            position: fixed;
+            top: 0;
+            left: 0;
+            background: black;
+            color: lime;
+            padding: 10px;
+            font-family: monospace;
+            font-size: 12px;
+            z-index: 10000;
+            max-width: 300px;
+            max-height: 200px;
+            overflow: auto;
+        }
+        
+        .debug-button {
+            background: red !important;
+            color: white !important;
+            padding: 10px !important;
+            border: 2px solid yellow !important;
+            margin: 20px !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="debug-info" id="debugInfo">
+        Cargando información de debug...
+    </div>
+    
+    <div class="header">
+        <div class="header-content">
+            <div class="logo">
+                <h1>🎓 Sistema Académico UTP</h1>
+            </div>
+            
+            <div class="header-actions">
+                <div class="theme-selector">
+                    <select id="theme-selector">
+                        <option value="light">🌞 Claro</option>
+                        <option value="dark">🌙 Oscuro</option>
+                        <option value="glass" selected>✨ Glassmorfismo</option>
+                        <option value="neomorphism">🔮 Neumorfismo</option>
+                    </select>
+                </div>
+                
+                <div class="user-actions">
+                    <button id="usuario-button" class="user-button" onclick="debugButton()">
+                        <i>👤</i>
+                        <span>Usuario</span>
+                    </button>
+                    
+                    <button class="debug-button" onclick="debugButton()">
+                        TEST BUTTON
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div style="margin-top: 100px; padding: 20px;">
+        <h2>Test de estilos</h2>
+        <p>Esta página está configurada para usar el tema glassmorfismo por defecto.</p>
+        
+        <button class="user-button">Botón con clase user-button</button>
+        <button id="test-usuario" class="user-button">Botón de prueba</button>
+    </div>
+
+    <script src="js/themes.js"></script>
+    <script>
+        function debugButton() {
+            const button = document.getElementById('usuario-button');
+            const computedStyle = window.getComputedStyle(button);
+            
+            const info = {
+                'data-theme': document.documentElement.getAttribute('data-theme'),
+                'button ID': button.id,
+                'button classes': button.className,
+                'computed background': computedStyle.background,
+                'computed border': computedStyle.border,
+                'computed backdrop-filter': computedStyle.backdropFilter,
+                'computed color': computedStyle.color,
+                'computed box-shadow': computedStyle.boxShadow
+            };
+            
+            let debugText = 'DEBUG INFO:\n';
+            for (const [key, value] of Object.entries(info)) {
+                debugText += `${key}: ${value}\n`;
+            }
+            
+            document.getElementById('debugInfo').innerText = debugText;
+            console.log('Debug info:', info);
+        }
+        
+        // Ejecutar debug automáticamente
+        setTimeout(debugButton, 1000);
+        
+        // Añadir listener al selector de tema
+        document.getElementById('theme-selector').addEventListener('change', function(e) {
+            // Actualizar tema
+            if (e.target.value === 'light') {
+                document.documentElement.removeAttribute('data-theme');
+            } else {
+                document.documentElement.setAttribute('data-theme', e.target.value);
+            }
+            
+            // Ejecutar debug después del cambio
+            setTimeout(debugButton, 100);
+        });
+    </script>
+</body>
+</html>

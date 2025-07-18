@@ -1,4 +1,5 @@
 // Manejo de Estudiantes
+console.log('Cargando estudiantes.js - Versión actualizada con servicios directos', new Date().toISOString());
 class EstudiantesManager {
     constructor() {
         this.estudiantes = [];
