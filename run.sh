@@ -1,10 +1,10 @@
 #!/bin/bash
 
-# 🎓 Sistema de Gestión Académica UTP - Script de Inicialización
-# ==============================================================
-# Este script permite inicializar y ejecutar fácilmente todo el proyecto
+# 🎓 Sistema de Gestión Académica UTP - Script de Inicialización Actualizado
+# ==========================================================================
+# Este script permite inicializar y ejecutar correctamente todo el proyecto
 # Autor: Sistema de Gestión Académica UTP
-# Versión: 2.0
+# Versión: 3.0 - Actualizado
 
 set -e  # Salir si hay errores
 
@@ -16,6 +16,10 @@ RED='\033[0;31m'
 PURPLE='\033[0;35m'
 CYAN='\033[0;36m'
 NC='\033[0m' # No Color
+
+# Variables globales
+BACKEND_PID=""
+FRONTEND_PID=""
 
 # Función para mostrar el banner
 show_banner() {
@@ -95,7 +99,7 @@ check_requirements() {
     fi
     
     # Verificar Docker Compose
-    if ! command -v docker-compose &> /dev/null && ! docker compose version &> /dev/null; then
+    if ! command -v docker-compose &> /dev/null && ! docker compose version &> /dev/null 2>&1; then
         log_error "Docker Compose no está instalado."
         missing_deps=1
     else
@@ -117,7 +121,7 @@ check_requirements() {
     log_success "Todos los prerrequisitos están disponibles"
 }
 
-# Iniciar bases de datos
+# Inicializar bases de datos
 start_databases() {
     log_step "Iniciando bases de datos con Docker Compose..."
     
@@ -146,11 +150,10 @@ start_databases() {
         echo ""
         
         # Inicializar datos si existe el script
-        if [ -f "./scripts/database/init-database.sh" ]; then
+        if [ -f "./init-database.sh" ]; then
             log_step "Inicializando datos en las bases de datos..."
-            chmod +x ./scripts/database/init-database.sh
-            ./scripts/database/init-database.sh
-            if [ $? -eq 0 ]; then
+            chmod +x ./init-database.sh
+            if ./init-database.sh; then
                 log_success "Datos de prueba cargados en todas las bases de datos"
             else
                 log_warning "Algunos datos no se pudieron inicializar, pero continuamos..."
@@ -185,7 +188,7 @@ wait_for_backend() {
     local attempt=1
     
     while [ $attempt -le $max_attempts ]; do
-        if curl -s http://localhost:8080/api/reportes/dashboard > /dev/null 2>&1; then
+        if curl -s http://localhost:8080/api/auth/me > /dev/null 2>&1; then
             log_success "Backend disponible en http://localhost:8080"
             return 0
         fi
@@ -204,14 +207,14 @@ wait_for_backend() {
 
 # Iniciar frontend
 start_frontend() {
-    log_step "Iniciando servidor frontend en puerto 3000..."
+    log_step "Iniciando servidor frontend..."
     
     cd frontend
     
-    # Verificar si existe start.sh, si no, usar Python
+    # Verificar si existe start.sh, si no, usar Python directamente
     if [ -f "./start.sh" ]; then
         chmod +x ./start.sh
-        ./start.sh > /dev/null 2>&1 &
+        ./start.sh 3000 > /dev/null 2>&1 &
     else
         # Intentar con python3 primero, luego python
         if command -v python3 &> /dev/null; then
@@ -243,7 +246,7 @@ start_frontend() {
 run_full_application() {
     log_step "Iniciando sistema completo..."
     
-    # Iniciar backend en background
+    # Iniciar backend
     log_info "Iniciando backend Spring Boot..."
     ./mvnw spring-boot:run > backend.log 2>&1 &
     BACKEND_PID=$!
@@ -254,7 +257,6 @@ run_full_application() {
     # Iniciar frontend
     start_frontend
     
-    echo ""
     log_success "🚀 Sistema de Gestión Académica UTP iniciado completamente!"
     echo ""
     echo -e "${CYAN}📍 URLs disponibles:${NC}"
@@ -268,14 +270,14 @@ run_full_application() {
     echo "   • 📚 Gestión de Cursos"
     echo "   • 🚀 Gestión de Proyectos"
     echo "   • 📈 Reportes y Estadísticas"
+    echo "   • 🔐 Sistema de Autenticación"
     echo ""
     echo -e "${YELLOW}⚡ Para detener el sistema, presiona Ctrl+C${NC}"
-    echo ""
     
-    # Función para limpiar procesos al salir
+    # Función de limpieza
     cleanup() {
         echo ""
-        log_info "Deteniendo aplicaciones..."
+        log_info "Deteniendo servicios..."
         
         [ ! -z "$BACKEND_PID" ] && kill $BACKEND_PID 2>/dev/null
         [ ! -z "$FRONTEND_PID" ] && kill $FRONTEND_PID 2>/dev/null
@@ -359,7 +361,7 @@ check_status() {
     
     # Verificar backend
     echo -e "${CYAN}🔧 Backend (Puerto 8080):${NC}"
-    if curl -s http://localhost:8080/api/reportes/dashboard > /dev/null 2>&1; then
+    if curl -s http://localhost:8080/api/auth/me > /dev/null 2>&1; then
         echo -e "   ${GREEN}✓ Disponible${NC}"
     else
         echo -e "   ${RED}✗ No disponible${NC}"
@@ -392,19 +394,19 @@ main() {
             build_backend
             run_full_application
             ;;
+        "db")
+            start_databases
+            log_success "✨ Bases de datos iniciadas. Usa './run.sh backend' para iniciar el backend."
+            ;;
         "build")
             check_requirements
             build_backend
             log_success "✨ Proyecto compilado exitosamente"
             ;;
-        "db")
-            start_databases
-            log_success "✨ Bases de datos iniciadas. Usa './run.sh backend' para iniciar el backend."
-            ;;
         "backend")
+            log_info "Iniciando solo el backend en puerto 8080..."
             check_requirements
             build_backend
-            log_info "Iniciando solo el backend en puerto 8080..."
             ./mvnw spring-boot:run
             ;;
         "frontend")
