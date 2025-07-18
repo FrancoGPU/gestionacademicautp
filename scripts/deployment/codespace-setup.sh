@@ -57,20 +57,44 @@ done
 echo "   ✅ Redis listo"
 
 # Esperar Cassandra (toma más tiempo)
-echo "   🪐 Esperando Cassandra (puede tomar hasta 60 segundos)..."
-sleep 10
-while ! docker exec cassandra-container cqlsh -e "describe keyspaces" 2>/dev/null | grep -q "utp_gestion_academica_keyspace"; do
-    sleep 5
-done
-echo "   ✅ Cassandra listo"
+echo "   🪐 Esperando Cassandra (puede tomar hasta 2 minutos)..."
+CASSANDRA_READY=false
+CASSANDRA_TIMEOUT=120  # 2 minutos
+CASSANDRA_ELAPSED=0
 
-# Paso 5: Verificar que el keyspace de Cassandra se creó correctamente
-echo "🔍 Verificando keyspace de Cassandra..."
-if docker exec cassandra-container cqlsh -e "describe keyspace utp_gestion_academica_keyspace" 2>/dev/null | grep -q "profesores"; then
-    echo "   ✅ Keyspace y tablas de Cassandra creados correctamente"
+# Primero esperar a que Cassandra esté básicamente funcionando
+echo "   🔄 Esperando que Cassandra inicie..."
+while [ $CASSANDRA_ELAPSED -lt $CASSANDRA_TIMEOUT ]; do
+    if docker exec cassandra-container cqlsh -e "describe keyspaces" 2>/dev/null | grep -q "system"; then
+        echo "   ✅ Cassandra está funcionando"
+        CASSANDRA_READY=true
+        break
+    fi
+    echo "   ⏳ Cassandra iniciando... ($CASSANDRA_ELAPSED/$CASSANDRA_TIMEOUT segundos)"
+    sleep 10
+    CASSANDRA_ELAPSED=$((CASSANDRA_ELAPSED + 10))
+done
+
+if [ "$CASSANDRA_READY" = false ]; then
+    echo "   ⚠️ Cassandra tardó demasiado en iniciar. Continuando sin él..."
+    echo "   💡 Puedes verificar Cassandra después con: ./scripts/database/verify-cassandra.sh"
 else
-    echo "   ⚠️ Recreando keyspace de Cassandra..."
-    docker exec cassandra-container cqlsh -f /docker-entrypoint-initdb.d/init-cassandra.cql
+    # Paso 5: Verificar que el keyspace de Cassandra se creó correctamente
+    echo "🔍 Verificando keyspace de Cassandra..."
+    sleep 5  # Dar tiempo para que se ejecute el script de inicialización
+    
+    if docker exec cassandra-container cqlsh -e "describe keyspace utp_gestion_academica_keyspace" 2>/dev/null | grep -q "profesores"; then
+        echo "   ✅ Keyspace y tablas de Cassandra creados correctamente"
+    else
+        echo "   ⚠️ Recreando keyspace de Cassandra..."
+        docker exec cassandra-container cqlsh -f /docker-entrypoint-initdb.d/init-cassandra.cql
+        sleep 5
+        if docker exec cassandra-container cqlsh -e "describe keyspace utp_gestion_academica_keyspace" 2>/dev/null | grep -q "profesores"; then
+            echo "   ✅ Keyspace recreado exitosamente"
+        else
+            echo "   ⚠️ No se pudo crear el keyspace. Continuando sin Cassandra..."
+        fi
+    fi
 fi
 
 # Paso 6: Mostrar estado de los servicios
