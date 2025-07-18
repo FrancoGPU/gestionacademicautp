@@ -4,10 +4,16 @@ Sistema integral de gestión académica desarrollado con **Spring Boot** y **Jav
 
 ## 🚀 **Inicio Súper Rápido**
 
-### Una sola línea para iniciar todo:
+### Para GitHub Codespaces (NUEVO):
+```bash
+./scripts/deployment/codespace-setup.sh
+```
+
+### Para entornos locales:
 ```bash
 ./run.sh start
 ```
+
 **¡Y listo!** En menos de 2 minutos tendrás todo funcionando.
 
 ### URLs disponibles después del inicio:
@@ -18,11 +24,12 @@ Sistema integral de gestión académica desarrollado con **Spring Boot** y **Jav
 ## 📋 **¿Qué incluye este comando?**
 
 ✅ Verificación automática de dependencias  
-✅ Inicio de 4 bases de datos (PostgreSQL, MySQL, Cassandra, MongoDB)  
+✅ Inicio de 5 bases de datos (PostgreSQL, MySQL, Cassandra, MongoDB, Redis)  
 ✅ Carga automática de datos de prueba  
 ✅ Compilación y inicio del backend Spring Boot  
-✅ Inicio del servidor frontend  
+✅ Inicio del servidor frontend en puerto 3000  
 ✅ Verificación de conectividad entre servicios  
+✅ Configuración automática de CORS  
 
 ## 🏗️ **Arquitectura del Sistema**
 

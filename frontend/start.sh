@@ -11,8 +11,8 @@ if [ ! -f "index.html" ]; then
     exit 1
 fi
 
-# Obtener el puerto (por defecto 8000)
-PORT=${1:-8000}
+# Obtener el puerto (por defecto 3000)
+PORT=${1:-3000}
 
 echo "📁 Directorio: $(pwd)"
 echo "🌐 Puerto: $PORT"
