@@ -370,6 +370,15 @@ class ProfesoresManager {
     }
 
     showProfesorForm(profesor = null) {
+        // Recargar cursos para asegurar que estén actualizados
+        console.log('🔄 Recargando cursos antes de mostrar modal...');
+        this.loadCursos().then(() => {
+            console.log(`📚 Cursos cargados: ${this.cursos.length}`);
+            this.renderModalContent(profesor);
+        });
+    }
+
+    renderModalContent(profesor = null) {
         const modalTitle = document.getElementById('modalTitle');
         const modalBody = document.getElementById('modalBody');
         
@@ -535,9 +544,11 @@ class ProfesoresManager {
 
     async loadCursos() {
         try {
+            console.log('📡 Cargando cursos desde API...');
             this.cursos = await cursosService.getAll();
+            console.log(`✅ ${this.cursos.length} cursos cargados exitosamente`);
         } catch (error) {
-            console.error('Error loading cursos:', error);
+            console.error('❌ Error loading cursos:', error);
             this.cursos = [];
         }
     }

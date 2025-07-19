@@ -55,13 +55,11 @@ public class ProfesorService {
         throw new RuntimeException("Profesor no encontrado con ID: " + id);
     }
 
-    // Eliminar profesor (marcar como inactivo)
+    // Eliminar profesor físicamente de la base de datos
     public void deleteProfesor(UUID id) {
         Optional<Profesor> profesor = profesorRepository.findById(id);
         if (profesor.isPresent()) {
-            Profesor p = profesor.get();
-            p.setActivo(false);
-            profesorRepository.save(p);
+            profesorRepository.deleteById(id);
         } else {
             throw new RuntimeException("Profesor no encontrado con ID: " + id);
         }

@@ -474,9 +474,20 @@ class EstudiantesManager {
         this.currentEstudiante = null;
     }
 
-    showEstudianteForm(estudiante = null) {
+    async showEstudianteForm(estudiante = null) {
         const modalTitle = document.getElementById('modalTitle');
         const modalBody = document.getElementById('modalBody');
+        
+        // Recargar cursos y proyectos antes de mostrar el formulario
+        try {
+            Utils.showLoading();
+            await this.loadCursosAndProyectos();
+            Utils.hideLoading();
+        } catch (error) {
+            console.error('Error al cargar cursos y proyectos:', error);
+            Utils.hideLoading();
+            // Continuar con los datos existentes si hay error
+        }
         
         modalTitle.textContent = estudiante ? 'Editar Estudiante' : 'Nuevo Estudiante';
         

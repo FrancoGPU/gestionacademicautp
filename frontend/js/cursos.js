@@ -208,7 +208,7 @@ class CursosManager {
             indicator.className = `fas fa-sort-${isAscending ? 'up' : 'down'} sort-indicator`;
         }
 
-        const columns = ['id', 'nombre', 'codigo', 'creditos', 'profesor', 'estado'];
+        const columns = ['id', 'nombre', 'codigo', 'creditos'];
         const sortKey = columns[columnIndex];
 
         this.filteredCursos.sort((a, b) => {
@@ -260,18 +260,6 @@ class CursosManager {
                 <div class="detail-group">
                     <label>Créditos:</label>
                     <span>${curso.creditos}</span>
-                </div>
-                <div class="detail-group">
-                    <label>Profesor:</label>
-                    <span>${curso.profesor}</span>
-                </div>
-                <div class="detail-group">
-                    <label>Estado:</label>
-                    <span class="status-badge ${this.getStatusClass(curso.estado)}">${curso.estado}</span>
-                </div>
-                <div class="detail-group">
-                    <label>Semestre:</label>
-                    <span>${curso.semestre || 'No especificado'}</span>
                 </div>
             </div>
         `;
@@ -328,8 +316,9 @@ class CursosManager {
                 </div>
                 
                 <div class="form-group">
-                    <label class="form-label">Código *</label>
-                    <input type="text" name="codigo" class="form-input" required value="${curso?.codigo || ''}" placeholder="Ej: PROG101">
+                    <label class="form-label">Código ${curso ? '*' : '(opcional)'}</label>
+                    <input type="text" name="codigo" class="form-input" ${curso ? 'required' : ''} value="${curso?.codigo || ''}" placeholder="Ej: PROG101 (se generará automáticamente si se deja vacío)">
+                    ${!curso ? '<small class="form-help">💡 Si no especifica un código, se generará automáticamente basado en el nombre del curso</small>' : ''}
                 </div>
                 
                 <div class="form-group">
@@ -374,6 +363,17 @@ class CursosManager {
         const formData = Utils.getFormData(form);
         formData.creditos = parseInt(formData.creditos);
         
+        // Generar código automáticamente si no se proporciona uno
+        if (!formData.codigo || formData.codigo.trim() === '') {
+            formData.codigo = await this.generateUniqueCourseCode(formData.nombre);
+        }
+        
+        // Validar que el código no exista (solo para cursos nuevos)
+        if (!this.currentCurso && await this.courseCodeExists(formData.codigo)) {
+            Utils.showNotification(`Error: Ya existe un curso con el código '${formData.codigo}'. Por favor, use un código diferente.`, 'error');
+            return;
+        }
+        
         try {
             Utils.showLoading();
             
@@ -392,7 +392,71 @@ class CursosManager {
         } catch (error) {
             console.error('Error saving curso:', error);
             Utils.hideLoading();
-            Utils.showNotification('Error al guardar el curso', 'error');
+            
+            // Mostrar mensaje más específico para errores de duplicado
+            if (error.message.includes('Duplicate entry') || error.message.includes('codigo')) {
+                Utils.showNotification(`Error: El código '${formData.codigo}' ya existe. Por favor, use un código único.`, 'error');
+            } else {
+                Utils.showNotification('Error al guardar el curso', 'error');
+            }
+        }
+    }
+
+    // Verificar si un código de curso ya existe
+    async courseCodeExists(codigo) {
+        try {
+            const existingCourses = await API.cursos.getAll();
+            return existingCourses.some(curso => curso.codigo.toLowerCase() === codigo.toLowerCase());
+        } catch (error) {
+            console.error('Error checking course code:', error);
+            return false;
+        }
+    }
+
+    // Generar un código único de curso
+    async generateUniqueCourseCode(nombre) {
+        try {
+            // Extraer las primeras letras del nombre del curso
+            const palabras = nombre.toUpperCase().split(' ').filter(p => p.length > 0);
+            let prefix = '';
+            
+            // Generar prefijo basado en las palabras del nombre
+            if (palabras.length >= 2) {
+                prefix = palabras[0].substring(0, 3) + palabras[1].substring(0, 2);
+            } else if (palabras.length === 1) {
+                prefix = palabras[0].substring(0, 5);
+            } else {
+                prefix = 'CURSO';
+            }
+            
+            // Generar número secuencial
+            const existingCourses = await API.cursos.getAll();
+            let maxNumber = 0;
+            
+            existingCourses.forEach(curso => {
+                const match = curso.codigo.match(/(\d+)$/);
+                if (match) {
+                    const number = parseInt(match[1]);
+                    if (number > maxNumber) {
+                        maxNumber = number;
+                    }
+                }
+            });
+            
+            // Generar código único
+            let attempts = 0;
+            let codigo;
+            do {
+                const number = String(maxNumber + 1 + attempts).padStart(3, '0');
+                codigo = prefix + number;
+                attempts++;
+            } while (await this.courseCodeExists(codigo) && attempts < 100);
+            
+            return codigo;
+        } catch (error) {
+            console.error('Error generating course code:', error);
+            // Fallback: usar timestamp
+            return 'C' + Date.now().toString().slice(-5);
         }
     }
 
@@ -402,10 +466,7 @@ class CursosManager {
                 ID: curso.id,
                 Nombre: curso.nombre,
                 Código: curso.codigo,
-                Créditos: curso.creditos,
-                Profesor: curso.profesor,
-                Estado: curso.estado,
-                Semestre: curso.semestre || ''
+                Créditos: curso.creditos
             }));
 
             Utils.exportToCSV(data, `cursos_${Utils.formatDateOnly(new Date())}.csv`);

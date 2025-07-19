@@ -42,7 +42,27 @@ class ApiService {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
-            const data = await response.json();
+            // Manejar respuestas vacías (común en operaciones DELETE)
+            const contentType = response.headers.get('content-type');
+            let data;
+            
+            if (response.status === 204 || !contentType || !contentType.includes('application/json')) {
+                // Respuesta vacía o no JSON - típico en DELETE operations
+                data = { success: true, message: 'Operación completada exitosamente' };
+            } else {
+                const text = await response.text();
+                if (text.trim() === '') {
+                    data = { success: true, message: 'Operación completada exitosamente' };
+                } else {
+                    try {
+                        data = JSON.parse(text);
+                    } catch (e) {
+                        // Si no es JSON válido, devolver el texto como mensaje
+                        data = { success: true, message: text };
+                    }
+                }
+            }
+            
             Utils.hideLoading();
             return data;
 
@@ -139,7 +159,7 @@ class EstudiantesService extends ApiService {
     }
 
     async delete(id) {
-        return this.delete(`/estudiantes/${id}`);
+        return super.delete(`/estudiantes/${id}`);
     }
 
     async search(query) {
@@ -173,7 +193,7 @@ class ProfesoresService extends ApiService {
     }
 
     async delete(id) {
-        return this.delete(`/profesores/${id}`);
+        return super.delete(`/profesores/${id}`);
     }
 
     async search(query) {
@@ -211,7 +231,7 @@ class CursosService extends ApiService {
     }
 
     async delete(id) {
-        return this.delete(`/cursos/${id}`);
+        return super.delete(`/cursos/${id}`);
     }
 
     async search(query) {
@@ -253,7 +273,7 @@ class ProyectosService extends ApiService {
     }
 
     async delete(id) {
-        return this.delete(`/proyectos/${id}`);
+        return super.delete(`/proyectos/${id}`);
     }
 
     async search(query) {
