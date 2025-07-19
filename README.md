@@ -5,6 +5,28 @@ Sistema integral de gestión académica desarrollado con **Spring Boot** y **Jav
 ## 🚀 **Inicio Súper Rápido**
 
 ### Para GitHub Codespaces (NUEVO):
+
+## 📋 **Prerrequisitos**
+
+### Instalación de Python3 (requerido):
+
+```bash
+# Ubuntu/Debian
+sudo apt update && sudo apt install python3 python3-pip
+
+# CentOS/RHEL/Fedora
+sudo yum install python3 python3-pip
+# o para versiones más nuevas:
+sudo dnf install python3 python3-pip
+
+# macOS (con Homebrew)
+brew install python3
+
+# Verificar instalación
+python3 --version
+pip3 --version
+```
+### Para instalar el proyecto en GitHub Codespaces:
 ```bash
 ./scripts/deployment/codespace-setup.sh
 ```
