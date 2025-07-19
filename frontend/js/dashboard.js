@@ -188,7 +188,9 @@ class Dashboard {
                         ${data.recentProjects.map(project => `
                             <li>
                                 <span class="activity-name">${project.titulo}</span>
-                                <span class="activity-meta">${project.estado}</span>
+                                <span class="activity-meta">${project.resumen && project.resumen.length > 50 ? 
+                                    project.resumen.substring(0, 50) + '...' : 
+                                    project.resumen || 'Sin descripción'}</span>
                             </li>
                         `).join('')}
                     </ul>
