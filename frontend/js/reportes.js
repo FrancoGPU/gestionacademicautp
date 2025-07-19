@@ -5,8 +5,6 @@ class SimpleReportesManager {
     }
 
     init() {
-        console.log('Inicializando sistema de reportes simplificado...');
-        
         // Escuchar cuando se cargue la sección de reportes
         window.addEventListener('sectionChanged', (e) => {
             if (e.detail.section === 'reportes') {
@@ -16,7 +14,7 @@ class SimpleReportesManager {
     }
 
     loadReportesSection() {
-        console.log('Cargando sección de reportes...');
+        // Sección cargada
     }
 
     // Crear archivo CSV manualmente sin dependencias complejas
@@ -76,7 +74,6 @@ class SimpleReportesManager {
                 window.URL.revokeObjectURL(url);
             }, 100);
 
-            console.log(`Archivo ${filename} descargado exitosamente`);
             return true;
         } catch (error) {
             console.error('Error al descargar archivo:', error);
@@ -503,5 +500,3 @@ window.generateCursosReport = () => simpleReportes.generateCursosReport();
 
 // Exportar para uso global
 window.SimpleReportes = simpleReportes;
-
-console.log('Sistema de reportes simplificado cargado correctamente');

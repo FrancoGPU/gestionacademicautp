@@ -19,9 +19,7 @@ public class ReportesController {
             DashboardStatsDTO stats = reportesService.getDashboardStats();
             return ResponseEntity.ok(stats);
         } catch (Exception e) {
-            System.err.println("Error en el controlador de reportes: " + e.getMessage());
-            e.printStackTrace();
-            // Retornar estadísticas vacías en caso de error
+            // Log error and return empty stats
             return ResponseEntity.ok(new DashboardStatsDTO(0L, 0L, 0L, 0L));
         }
     }

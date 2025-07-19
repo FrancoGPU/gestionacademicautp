@@ -559,10 +559,8 @@ const profesores = new ProfesoresManager();
 
 // Funciones globales
 window.showProfesorForm = () => profesores.showProfesorForm();
+window.exportProfesores = () => profesores.exportProfesores();
 
 // Exportar para uso global
 window.profesores = profesores;
-
-window.showProfesorForm = () => profesores.showProfesorForm();
-window.exportProfesores = () => profesores.exportProfesores();
 window.Profesores = profesores;

@@ -234,10 +234,7 @@ class Utils {
 
     // Exportar datos a CSV
     static exportToCSV(data, filename) {
-        console.log('Exportando CSV:', { dataLength: data.length, filename, firstRow: data[0] });
-        
         const csv = this.arrayToCSV(data);
-        console.log('CSV generado:', csv.substring(0, 200) + '...');
         
         // Agregar BOM para UTF-8
         const BOM = '\uFEFF';
@@ -255,8 +252,6 @@ class Utils {
             link.click();
             document.body.removeChild(link);
             
-            console.log('Descarga iniciada:', filename);
-            
             // Limpiar URL después de un tiempo
             setTimeout(() => {
                 URL.revokeObjectURL(url);
@@ -273,10 +268,7 @@ class Utils {
             return '';
         }
 
-        console.log('Convirtiendo a CSV:', data.length, 'filas');
-
         const headers = Object.keys(data[0]);
-        console.log('Headers encontrados:', headers);
         
         const csvContent = [
             headers.join(','),
@@ -300,15 +292,10 @@ class Utils {
                     return value;
                 }).join(',');
                 
-                if (index < 3) {
-                    console.log(`Fila ${index}:`, csvRow);
-                }
-                
                 return csvRow;
             })
         ].join('\n');
 
-        console.log('CSV content length:', csvContent.length);
         return csvContent;
     }
 
